@@ -1,12 +1,20 @@
-package com.mamh.clevermap;
+package com.mamh.clevermap.activity;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
+import androidx.annotation.RequiresApi;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationClient;
@@ -18,18 +26,22 @@ import com.amap.api.maps.LocationSource;
 import com.amap.api.maps.MapView;
 import com.amap.api.maps.UiSettings;
 import com.amap.api.maps.model.BitmapDescriptorFactory;
-import com.amap.api.maps.model.CameraPosition;
 import com.amap.api.maps.model.Circle;
 import com.amap.api.maps.model.CircleOptions;
 import com.amap.api.maps.model.LatLng;
 import com.amap.api.maps.model.Marker;
 import com.amap.api.maps.model.MarkerOptions;
 import com.amap.api.maps.model.MyLocationStyle;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.mamh.clevermap.R;
+import com.mamh.clevermap.fragment.ChooseMapTypeDialogFragment;
 import com.mamh.clevermap.listener.SensorEventHelper;
+
+import org.jetbrains.annotations.NotNull;
 
 public class MainActivity extends FragmentActivity implements LocationSource,
         AMapLocationListener {
-    //地图的缩放范围，值越高范围越小。默认设为17
+    //地图的缩放范围，值越高范围越小。默认设为17.5
     public static float MAP_ZOOM = 17.5f;
     MapView mapView;
     AMap aMap;
@@ -48,17 +60,32 @@ public class MainActivity extends FragmentActivity implements LocationSource,
     private AMapLocationClientOption mLocationOption;
     private boolean mFirstLocate = true;
 
+    FloatingActionButton switchMapType;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         mapView = findViewById(R.id.map);
         // 此方法须覆写，虚拟机需要在很多情况下保存地图绘制的当前状态。
         mapView.onCreate(savedInstanceState);
-
         setUpMap();
         configureMapSettings();
+        //授予所需权限
+        //checkAndGrantPermission();
+
+        switchMapType = findViewById(R.id.switchMapType);
+        switchMapType.setOnClickListener(v -> {
+            ChooseMapTypeDialogFragment fragment = ChooseMapTypeDialogFragment.newInstance();
+            // 获得fragmentManager并开始交接
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            //开始交接
+            FragmentTransaction fragmentTransaction = fragmentManager
+                    .beginTransaction();
+            fragmentTransaction.add(fragment, "CHOOSE_MAP")
+                    .addToBackStack(null)
+                    .commit();
+        });
     }
 
     @Override
@@ -104,6 +131,7 @@ public class MainActivity extends FragmentActivity implements LocationSource,
         }
     }
 
+    @NotNull
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -112,21 +140,19 @@ public class MainActivity extends FragmentActivity implements LocationSource,
         mapView.onSaveInstanceState(outState);
     }
 
+    /**
+     * 用于初始化aMap对象，安排对地图的各种控制操作。
+     */
     private void setUpMap() {
         //初始化控制单元
         if (aMap == null) {
             aMap = mapView.getMap();
         }
-        aMap.setOnCameraChangeListener(new AMap.OnCameraChangeListener() {
-            @Override
-            public void onCameraChange(CameraPosition cameraPosition) {
-
-            }
-
-            @Override
-            public void onCameraChangeFinish(CameraPosition cameraPosition) {
-
-            }
+        //地图上POI的点击响应
+        aMap.addOnPOIClickListener(poi -> {
+            LatLng position = poi.getCoordinate();
+            final Marker marker = aMap.addMarker(new MarkerOptions().position(position));
+            aMap.animateCamera(CameraUpdateFactory.newLatLngZoom(position, MAP_ZOOM));
         });
     }
 
@@ -169,8 +195,10 @@ public class MainActivity extends FragmentActivity implements LocationSource,
                 }
             } else {
                 String errText = "定位失败,错误码为：" + aMapLocation.getErrorCode();
-                Log.e(TAG, errText);
-                Toast.makeText(MainActivity.this, errText, Toast.LENGTH_SHORT).show();
+                Log.e(TAG, errText + aMapLocation.getErrorInfo());
+                //Snackbar.make(mapView,errText,Snackbar.LENGTH_SHORT);
+                Toast.makeText(MainActivity.this, errText
+                        , Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -232,5 +260,46 @@ public class MainActivity extends FragmentActivity implements LocationSource,
         options.position(latlng);
         mLocMarker = aMap.addMarker(options);
         mLocMarker.setTitle(LOCATION_MARKER_FLAG);
+    }
+
+    private void checkAndGrantPermission() {
+        ActivityCompat.requestPermissions(this,
+                new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_WIFI_STATE,
+                        Manifest.permission.READ_PHONE_STATE,
+                        Manifest.permission.ACCESS_COARSE_LOCATION,
+                        Manifest.permission.ACCESS_FINE_LOCATION}, 0);
+    }
+
+
+    @SuppressLint({"ResourceType", "NonConstantResourceId"})
+    @RequiresApi(api = Build.VERSION_CODES.Q)
+    public void setMapType(View view) {
+        int id = view.getSourceLayoutResId();
+        Log.d(TAG, "setMapType: " + id);
+        if (aMap != null) {
+            switch (id) {
+                //当选中地图为导航时
+                case R.layout.choose_map_item_navigation:
+                    aMap.setMapType(AMap.MAP_TYPE_NAVI);
+                    break;
+                //当选中地图为夜间模式时
+                case R.layout.choose_map_item_night:
+                    aMap.setMapType(AMap.MAP_TYPE_NIGHT);
+                    break;
+                //当选中地图为卫星地图模式时
+                case R.layout.choose_map_item_sattellite:
+                    aMap.setMapType(AMap.MAP_TYPE_SATELLITE);
+                    break;
+                //当选中地图为默认时
+                case R.layout.choose_map_item_default:
+                    //默认切换为原图
+                default:
+                    aMap.setMapType(AMap.MAP_TYPE_NORMAL);
+                    break;
+            }
+        } else {
+            Log.e(TAG, "setDefaultMapType: ,未成功，aMap对象为空,布局ID为：" + id);
+        }
     }
 }
