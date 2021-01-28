@@ -8,6 +8,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
@@ -32,9 +33,11 @@ import com.amap.api.maps.model.LatLng;
 import com.amap.api.maps.model.Marker;
 import com.amap.api.maps.model.MarkerOptions;
 import com.amap.api.maps.model.MyLocationStyle;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.mamh.clevermap.R;
 import com.mamh.clevermap.fragment.ChooseMapTypeDialogFragment;
+import com.mamh.clevermap.listener.BottomSheetEventHandler;
 import com.mamh.clevermap.listener.SensorEventHelper;
 
 import org.jetbrains.annotations.NotNull;
@@ -49,6 +52,7 @@ public class MainActivity extends FragmentActivity implements LocationSource,
     private static final int STROKE_COLOR = Color.argb(180, 3, 145, 255);
     private static final int FILL_COLOR = Color.argb(10, 0, 0, 180);
     private static final String TAG = "MainActivity成功";
+    LatLng location;
     //定位标记
     private Marker mLocMarker;
     //定位范围圆形
@@ -60,7 +64,17 @@ public class MainActivity extends FragmentActivity implements LocationSource,
     private AMapLocationClientOption mLocationOption;
     private boolean mFirstLocate = true;
 
-    FloatingActionButton switchMapType;
+    //随便一个大头针Marker，记录一些位置
+    private Marker marker = null;
+
+    private FloatingActionButton switchMapType;
+
+    //承载ButtomSheet的linear layout布局
+    private LinearLayout buttomSheetLayout;
+    //ButtomSheet控件
+    private BottomSheetBehavior viewPoiSheetBehaviour;
+    //自定义的针对POI的BottomSheet，处理BottomSheet类的滑动操作
+    private BottomSheetEventHandler bottomSheetEventHandler = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,7 +87,7 @@ public class MainActivity extends FragmentActivity implements LocationSource,
         configureMapSettings();
         //授予所需权限
         //checkAndGrantPermission();
-
+        //选择map类型的处理
         switchMapType = findViewById(R.id.switchMapType);
         switchMapType.setOnClickListener(v -> {
             ChooseMapTypeDialogFragment fragment = ChooseMapTypeDialogFragment.newInstance();
@@ -86,6 +100,13 @@ public class MainActivity extends FragmentActivity implements LocationSource,
                     .addToBackStack(null)
                     .commit();
         });
+        //处理点击poi的事件
+        buttomSheetLayout = findViewById(R.id.poi_sheet_linear_layout);
+        viewPoiSheetBehaviour = BottomSheetBehavior.from(buttomSheetLayout);
+        bottomSheetEventHandler = new BottomSheetEventHandler(
+                getApplicationContext(), buttomSheetLayout);
+        viewPoiSheetBehaviour.setBottomSheetCallback(bottomSheetEventHandler);
+        viewPoiSheetBehaviour.setState(BottomSheetBehavior.STATE_HIDDEN);
     }
 
     @Override
@@ -129,11 +150,20 @@ public class MainActivity extends FragmentActivity implements LocationSource,
         if (null != mLocationClient) {
             mLocationClient.onDestroy();
         }
+
+        //移除POI响应点击
+        aMap.removeOnPOIClickListener(poi -> {
+            if (viewPoiSheetBehaviour != null && buttomSheetLayout != null) {
+                viewPoiSheetBehaviour.setHideable(true);
+                buttomSheetLayout.setVisibility(View.INVISIBLE);
+                buttomSheetLayout = null;
+                viewPoiSheetBehaviour = null;
+            }
+        });
     }
 
-    @NotNull
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    protected void onSaveInstanceState(@NotNull Bundle outState) {
         super.onSaveInstanceState(outState);
         //在activity执行onSaveInstanceState时
         // 执行mMapView.onSaveInstanceState (outState)，保存地图当前的状态
@@ -147,12 +177,37 @@ public class MainActivity extends FragmentActivity implements LocationSource,
         //初始化控制单元
         if (aMap == null) {
             aMap = mapView.getMap();
+
+            //初始化map,设置默认显示的地图类型
+            aMap.setMapType(AMap.MAP_TYPE_NORMAL);
+            aMap.setTrafficEnabled(true);
         }
         //地图上POI的点击响应
         aMap.addOnPOIClickListener(poi -> {
             LatLng position = poi.getCoordinate();
-            final Marker marker = aMap.addMarker(new MarkerOptions().position(position));
+            marker = aMap.addMarker(new MarkerOptions().position(position));
             aMap.animateCamera(CameraUpdateFactory.newLatLngZoom(position, MAP_ZOOM));
+            if (bottomSheetEventHandler != null) {
+                bottomSheetEventHandler.setPoi(poi);
+                bottomSheetEventHandler.updatePOIText();
+            }
+            if (viewPoiSheetBehaviour != null && buttomSheetLayout != null) {
+                //设置BottomSheet状态
+                viewPoiSheetBehaviour.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                //设置BottomSheet不可隐藏（避免误会和吐槽）
+                viewPoiSheetBehaviour.setHideable(false);
+                //检查
+            }
+        });
+        //单纯的点地图，不是点poi;点poi触发上面的响应
+        aMap.addOnMapClickListener(poi -> {
+            if (viewPoiSheetBehaviour != null && buttomSheetLayout != null) {
+                viewPoiSheetBehaviour.setHideable(true);
+                //不点了就藏起来吧
+                viewPoiSheetBehaviour.setState(BottomSheetBehavior.STATE_HIDDEN);
+            }
+            //清除当前已设立的标记
+            marker = null;
         });
     }
 
@@ -193,12 +248,15 @@ public class MainActivity extends FragmentActivity implements LocationSource,
                     mCircle.setRadius(aMapLocation.getAccuracy());
                     mLocMarker.setPosition(location);
                 }
+                //为ButtomSheetDialog设置当前位置
+                if (bottomSheetEventHandler != null) {
+                    bottomSheetEventHandler.setCurrentLocation(location);
+                }
             } else {
                 String errText = "定位失败,错误码为：" + aMapLocation.getErrorCode();
                 Log.e(TAG, errText + aMapLocation.getErrorInfo());
                 //Snackbar.make(mapView,errText,Snackbar.LENGTH_SHORT);
-                Toast.makeText(MainActivity.this, errText
-                        , Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, errText, Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -271,7 +329,6 @@ public class MainActivity extends FragmentActivity implements LocationSource,
                         Manifest.permission.ACCESS_FINE_LOCATION}, 0);
     }
 
-
     @SuppressLint({"ResourceType", "NonConstantResourceId"})
     @RequiresApi(api = Build.VERSION_CODES.Q)
     public void setMapType(View view) {
@@ -288,7 +345,7 @@ public class MainActivity extends FragmentActivity implements LocationSource,
                     aMap.setMapType(AMap.MAP_TYPE_NIGHT);
                     break;
                 //当选中地图为卫星地图模式时
-                case R.layout.choose_map_item_sattellite:
+                case R.layout.choose_map_item_satellite:
                     aMap.setMapType(AMap.MAP_TYPE_SATELLITE);
                     break;
                 //当选中地图为默认时
@@ -296,6 +353,8 @@ public class MainActivity extends FragmentActivity implements LocationSource,
                     //默认切换为原图
                 default:
                     aMap.setMapType(AMap.MAP_TYPE_NORMAL);
+                    //普通地图道路交通状况默认可见
+                    aMap.setTrafficEnabled(true);
                     break;
             }
         } else {

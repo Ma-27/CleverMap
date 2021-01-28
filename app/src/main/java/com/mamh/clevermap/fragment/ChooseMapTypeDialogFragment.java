@@ -15,10 +15,6 @@ import com.mamh.clevermap.R;
  * 监听选择地图类型的Fragment
  */
 public class ChooseMapTypeDialogFragment extends DialogFragment {
-    public static final int CHOOSE_MAP_DEFAULT = 1;
-    public static final int CHOOSE_MAP_SATELLITE = 2;
-    public static final int CHOOSE_MAP_NAVIGATION = 3;
-    public static final int CHOOSE_MAP_NIGHT = 4;
 
     public ChooseMapTypeDialogFragment() {
         // Required empty public constructor

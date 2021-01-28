@@ -30,7 +30,7 @@
                 android:layout_height="12dp" />
 
             <TextView
-                android:id="@+id/textView_default_table_item"
+                android:id="@+id/textView_satellite_table_item"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"

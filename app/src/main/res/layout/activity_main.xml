@@ -1,35 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF"
     tools:context=".activity.MainActivity">
 
     <com.amap.api.maps.MapView
         android:id="@+id/map"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-    </com.amap.api.maps.MapView>
+        android:layout_height="match_parent"
+        android:layout_marginBottom="0sp"></com.amap.api.maps.MapView>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/switchMapType"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="48dp"
-        android:layout_marginEnd="3dp"
         android:clickable="true"
         android:contentDescription="按下这个按钮来切换地图"
         android:focusable="true"
-        android:foregroundTintMode="src_in"
         android:src="@android:drawable/ic_dialog_map"
+        android:layout_marginTop="48sp"
+        android:layout_marginEnd="4sp"
+        app:elevation="@dimen/cardview_default_elevation"
+        app:layout_anchor="@id/map"
+        app:layout_anchorGravity="right|top"
         app:backgroundTint="@color/white"
         app:fabSize="mini"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:rippleColor="#FFFFFF"
         app:tint="#2E7D32" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <!-- 引入poi浏览 bottom sheet控件-->
+    <include layout="@layout/poi_bottom_sheet" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
