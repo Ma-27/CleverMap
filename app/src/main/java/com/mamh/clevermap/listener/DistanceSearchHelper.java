@@ -2,7 +2,6 @@ package com.mamh.clevermap.listener;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.util.Log;
 import android.widget.TextView;
 
 import com.amap.api.maps.model.LatLng;
@@ -24,7 +23,7 @@ public class DistanceSearchHelper extends DistanceSearch
     private final DistanceSearch distanceSearch;
     private final TextView distanceTextView;
     private List<DistanceItem> distanceResultList;
-    private float distance, distanceSum = 0.0f;
+    private float distanceSum = 0.0f;
     private int num = 0;
 
     public DistanceSearchHelper(Context context, TextView distanceTextView) {
@@ -42,7 +41,7 @@ public class DistanceSearchHelper extends DistanceSearch
      * @param destination 目的地
      */
     public void distanceQuery(LatLng destination, LatLng... startPoints) {
-        List<LatLonPoint> latLonPoints = new ArrayList<LatLonPoint>();
+        List<LatLonPoint> latLonPoints = new ArrayList<>();
         for (LatLng position : startPoints) {
             latLonPoints.add(new LatLonPoint(position.latitude, position.longitude));
         }
@@ -65,10 +64,9 @@ public class DistanceSearchHelper extends DistanceSearch
                 distanceSum = item.getDistance() + distanceSum;
                 num++;
             }
-            distance = distanceSum / num;
+            float distance = distanceSum / num;
 
-            distanceTextView.setText("当前位置距该点\n" + distance + "米");
-            Log.d(TAG, "onDistanceSearched: " + distance);
+            distanceTextView.setText("距该点\n" + distance + "米");
         } catch (NullPointerException nullPointerException) {
             nullPointerException.printStackTrace();
             distanceTextView.setText("空指针异常");

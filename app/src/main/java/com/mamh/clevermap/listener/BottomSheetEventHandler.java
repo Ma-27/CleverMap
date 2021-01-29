@@ -17,6 +17,8 @@ public class BottomSheetEventHandler extends BottomSheetBehavior.BottomSheetCall
         implements OnPoiChange {
     private static final String TAG = "BottomSheetEventHandler成功";
     private final Context context;
+    //布局和View
+    private final View rootLayout;
     private final TextView titleTextView;
     private final TextView distanceTextView;
     //Toast.makeText(relatedComponentContext,"触发",Toast.LENGTH_SHORT).show();
@@ -28,10 +30,11 @@ public class BottomSheetEventHandler extends BottomSheetBehavior.BottomSheetCall
         //设置TextView
         titleTextView = rootLayout.findViewById(R.id.poi_name);
         distanceTextView = rootLayout.findViewById(R.id.poi_distance);
+        this.rootLayout = rootLayout;
     }
 
     /**
-     * 当BottomSheet上下拉动，发生变化时处理状态
+     * 当BottomSheet上拉，加载Poi详细信息
      *
      * @param bottomSheet poi响应的卡片
      * @param newState    转换时的新状态
@@ -39,7 +42,15 @@ public class BottomSheetEventHandler extends BottomSheetBehavior.BottomSheetCall
     @SuppressLint("LongLogTag")
     @Override
     public void onStateChanged(@NonNull View bottomSheet, int newState) {
+        if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+            try {
+                PoiSearchHelper poiSearchHelper = new PoiSearchHelper(context, null, rootLayout);
+                poiSearchHelper.searchPOIIdAsyn(poi.getPoiId());// 异步搜索
 
+            } catch (Exception nullPointerException) {
+                nullPointerException.printStackTrace();
+            }
+        }
     }
 
     @SuppressLint("LongLogTag")
@@ -70,7 +81,7 @@ public class BottomSheetEventHandler extends BottomSheetBehavior.BottomSheetCall
     /**
      * Main activity中设置当前位置
      *
-     * @param Location
+     * @param Location 由MainActivity传入当前位置
      */
     public void setCurrentLocation(LatLng Location) {
         currentLocation = Location;

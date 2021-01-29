@@ -8,7 +8,7 @@
     android:orientation="vertical"
     android:padding="16dp"
     app:behavior_hideable="true"
-    app:behavior_peekHeight="78sp"
+    app:behavior_peekHeight="72sp"
     app:layout_behavior="@string/bottom_sheet_behavior">
 
     <LinearLayout
@@ -21,6 +21,7 @@
         <TextView
             android:id="@+id/poi_name"
             android:layout_width="0dp"
+            android:layout_gravity="center_horizontal"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             android:layout_weight="2"
@@ -36,9 +37,51 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="start"
-            android:text=""
+            android:textColor="#666"
             android:textSize="15sp" />
-
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/poi_item1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8sp"
+        android:padding="4sp"
+        android:text=""
+        android:textColor="#450" />
+
+    <TextView
+        android:id="@+id/poi_item2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="4sp"
+        android:text=""
+        android:textColor="#450" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16sp"
+        android:text="有关信息"
+        android:textColor="#444"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/poi_info_tel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="暂缺该地点的联系电话"
+        android:textColor="#450" />
+
+    <!--
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:background="#3D5AFE"
+        android:text="前往相关网站"
+        android:textColor="#fff" />
+
+        -->
 
 </LinearLayout>
