@@ -24,7 +24,7 @@ public class PoiSearchHelper extends PoiSearch implements PoiSearch.OnPoiSearchL
         setOnPoiSearchListener(this);
         this.context = context;
         this.rootView = layoutRootView;
-        titleView = rootView.findViewById(R.id.poi_name);
+        titleView = rootView.findViewById(R.id.textView_poi_title);
         item1View = rootView.findViewById(R.id.poi_item1);
         item2View = rootView.findViewById(R.id.poi_item2);
         telView = rootView.findViewById(R.id.poi_info_tel);

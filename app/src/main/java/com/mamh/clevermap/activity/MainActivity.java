@@ -2,10 +2,15 @@ package com.mamh.clevermap.activity;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.DialogFragment;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -13,6 +18,7 @@ import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -37,13 +43,20 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.mamh.clevermap.R;
 import com.mamh.clevermap.fragment.ChooseMapTypeDialogFragment;
-import com.mamh.clevermap.listener.BottomSheetEventHandler;
+import com.mamh.clevermap.fragment.HintDialogFragment;
+import com.mamh.clevermap.interfaces.HintPermissionCallback;
+import com.mamh.clevermap.listener.GrantPermissionHelper;
 import com.mamh.clevermap.listener.SensorEventHelper;
+import com.mamh.clevermap.listener.ViewPoiSheetEventHandler;
 
 import org.jetbrains.annotations.NotNull;
 
+import static com.mamh.clevermap.listener.GrantPermissionHelper.IsEmptyOrNullString;
+import static com.mamh.clevermap.listener.GrantPermissionHelper.LOCATION_PERMISSION_CODE;
+import static com.mamh.clevermap.listener.GrantPermissionHelper.PHONE_STATE_PERMISSION_CODE;
+
 public class MainActivity extends FragmentActivity implements LocationSource,
-        AMapLocationListener {
+        AMapLocationListener, HintPermissionCallback {
     //地图的缩放范围，值越高范围越小。默认设为17.5
     public static float MAP_ZOOM = 17.5f;
     MapView mapView;
@@ -52,6 +65,8 @@ public class MainActivity extends FragmentActivity implements LocationSource,
     private static final int STROKE_COLOR = Color.argb(180, 3, 145, 255);
     private static final int FILL_COLOR = Color.argb(10, 0, 0, 180);
     private static final String TAG = "MainActivity成功";
+    //权限控制类对象
+    GrantPermissionHelper permissionHelper;
     LatLng location;
     //定位标记
     private Marker mLocMarker;
@@ -67,28 +82,29 @@ public class MainActivity extends FragmentActivity implements LocationSource,
     //随便一个大头针Marker，记录一些位置
     private Marker marker = null;
 
-    private FloatingActionButton switchMapType;
-
     //承载ButtomSheet的linear layout布局
-    private LinearLayout buttomSheetLayout;
+    private LinearLayout poiSheetLayout, searchSheetLayout;
     //ButtomSheet控件
-    private BottomSheetBehavior viewPoiSheetBehaviour;
+    private BottomSheetBehavior viewPoiSheetBehaviour, searchPoiSheetBehaviour;
     //自定义的针对POI的BottomSheet，处理BottomSheet类的滑动操作
-    private BottomSheetEventHandler bottomSheetEventHandler = null;
+    private ViewPoiSheetEventHandler viewPoiSheetHandler = null, searchPoiSheetHandler = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mapView = findViewById(R.id.map);
+        //授予所需权限
+        permissionHelper = new GrantPermissionHelper();
+        checkStatePermission();
+        checkLocationPermission();
+
         // 此方法须覆写，虚拟机需要在很多情况下保存地图绘制的当前状态。
         mapView.onCreate(savedInstanceState);
         setUpMap();
         configureMapSettings();
-        //授予所需权限
-        //checkAndGrantPermission();
         //选择map类型的处理
-        switchMapType = findViewById(R.id.switchMapType);
+        FloatingActionButton switchMapType = findViewById(R.id.switchMapType);
         switchMapType.setOnClickListener(v -> {
             ChooseMapTypeDialogFragment fragment = ChooseMapTypeDialogFragment.newInstance();
             // 获得fragmentManager并开始交接
@@ -101,12 +117,21 @@ public class MainActivity extends FragmentActivity implements LocationSource,
                     .commit();
         });
         //处理点击poi的事件
-        buttomSheetLayout = findViewById(R.id.poi_sheet_linear_layout);
-        viewPoiSheetBehaviour = BottomSheetBehavior.from(buttomSheetLayout);
-        bottomSheetEventHandler = new BottomSheetEventHandler(
-                getApplicationContext(), buttomSheetLayout);
-        viewPoiSheetBehaviour.setBottomSheetCallback(bottomSheetEventHandler);
+        poiSheetLayout = findViewById(R.id.poi_sheet_linear_layout);
+        viewPoiSheetBehaviour = BottomSheetBehavior.from(poiSheetLayout);
+        viewPoiSheetHandler = new ViewPoiSheetEventHandler
+                (getApplicationContext(), poiSheetLayout);
+        viewPoiSheetBehaviour.setBottomSheetCallback(viewPoiSheetHandler);
         viewPoiSheetBehaviour.setState(BottomSheetBehavior.STATE_HIDDEN);
+
+        //处理搜索poi事件
+        searchSheetLayout = findViewById(R.id.search_sheet_linear_layout);
+        searchPoiSheetBehaviour = BottomSheetBehavior.from(searchSheetLayout);
+        searchPoiSheetHandler = new ViewPoiSheetEventHandler
+                (getApplicationContext(), searchSheetLayout);
+        searchPoiSheetBehaviour.setBottomSheetCallback(searchPoiSheetHandler);
+        //设为默认露出搜索框
+        viewPoiSheetBehaviour.setState(BottomSheetBehavior.STATE_COLLAPSED);
     }
 
     @Override
@@ -153,13 +178,21 @@ public class MainActivity extends FragmentActivity implements LocationSource,
 
         //移除POI响应点击
         aMap.removeOnPOIClickListener(poi -> {
-            if (viewPoiSheetBehaviour != null && buttomSheetLayout != null) {
+            if (viewPoiSheetBehaviour != null && poiSheetLayout != null) {
                 viewPoiSheetBehaviour.setHideable(true);
-                buttomSheetLayout.setVisibility(View.INVISIBLE);
-                buttomSheetLayout = null;
+                poiSheetLayout.setVisibility(View.GONE);
+                poiSheetLayout = null;
                 viewPoiSheetBehaviour = null;
             }
         });
+
+        //移除SearchBottomSheet
+        if (searchPoiSheetBehaviour != null && searchSheetLayout != null) {
+            searchPoiSheetBehaviour.setHideable(true);
+            searchSheetLayout.setVisibility(View.GONE);
+            poiSheetLayout = null;
+            searchPoiSheetBehaviour = null;
+        }
     }
 
     @Override
@@ -187,12 +220,13 @@ public class MainActivity extends FragmentActivity implements LocationSource,
             LatLng position = poi.getCoordinate();
             marker = aMap.addMarker(new MarkerOptions().position(position));
             aMap.animateCamera(CameraUpdateFactory.newLatLngZoom(position, MAP_ZOOM));
-            if (bottomSheetEventHandler != null) {
-                bottomSheetEventHandler.setPoi(poi);
-                bottomSheetEventHandler.updatePOIText();
+            if (viewPoiSheetHandler != null) {
+                viewPoiSheetHandler.setPoi(poi);
+                viewPoiSheetHandler.updatePOIText();
             }
-            if (viewPoiSheetBehaviour != null && buttomSheetLayout != null) {
-                //设置BottomSheet状态
+            if (viewPoiSheetBehaviour != null && poiSheetLayout != null) {
+                //设置搜索和查看poi的BottomSheet状态
+                searchPoiSheetBehaviour.setState(BottomSheetBehavior.STATE_HIDDEN);
                 viewPoiSheetBehaviour.setState(BottomSheetBehavior.STATE_COLLAPSED);
                 //设置BottomSheet不可隐藏（避免误会和吐槽）
                 viewPoiSheetBehaviour.setHideable(false);
@@ -201,9 +235,10 @@ public class MainActivity extends FragmentActivity implements LocationSource,
         });
         //单纯的点地图，不是点poi;点poi触发上面的响应
         aMap.addOnMapClickListener(poi -> {
-            if (viewPoiSheetBehaviour != null && buttomSheetLayout != null) {
+            if (viewPoiSheetBehaviour != null && poiSheetLayout != null) {
                 viewPoiSheetBehaviour.setHideable(true);
-                //不点了就藏起来吧
+                //不点了就藏起来吧,把搜索框显示出来
+                searchPoiSheetBehaviour.setState(BottomSheetBehavior.STATE_COLLAPSED);
                 viewPoiSheetBehaviour.setState(BottomSheetBehavior.STATE_HIDDEN);
             }
             //清除当前已设立的标记
@@ -249,8 +284,8 @@ public class MainActivity extends FragmentActivity implements LocationSource,
                     mLocMarker.setPosition(location);
                 }
                 //为ButtomSheetDialog设置当前位置
-                if (bottomSheetEventHandler != null) {
-                    bottomSheetEventHandler.setCurrentLocation(location);
+                if (viewPoiSheetHandler != null) {
+                    viewPoiSheetHandler.setCurrentLocation(location);
                 }
             } else {
                 String errText = "定位失败,错误码为：" + aMapLocation.getErrorCode();
@@ -261,6 +296,11 @@ public class MainActivity extends FragmentActivity implements LocationSource,
         }
     }
 
+    /**
+     * 点击地图上的定位小图标才开启这个
+     *
+     * @param onLocationChangedListener
+     */
     @Override
     public void activate(OnLocationChangedListener onLocationChangedListener) {
         mListener = onLocationChangedListener;
@@ -283,7 +323,8 @@ public class MainActivity extends FragmentActivity implements LocationSource,
             myLocationStyle.interval(10000);
             aMap.setMyLocationStyle(myLocationStyle);
             mLocationClient.setLocationOption(mLocationOption);
-            mLocationClient.startLocation();
+            //当激活完成后再去检查权限，避免定位在先，引发崩溃
+            checkLocationPermission();
         }
     }
 
@@ -295,6 +336,24 @@ public class MainActivity extends FragmentActivity implements LocationSource,
             mLocationClient.onDestroy();
         }
         mLocationClient = null;
+    }
+
+    /**
+     * 开始定位
+     */
+    private void startLocation() {
+        // 启动定位
+        try {
+            mLocationClient.startLocation();
+        } catch (NullPointerException nullPointerException) {
+            nullPointerException.printStackTrace();
+            Log.d(TAG, "startLocation: 启动定位时出现空指针异常");
+            //Toast.makeText(MainActivity.this,"",Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.d(TAG, "startLocation: 启动定位时出现异常");
+            //Toast.makeText(MainActivity.this,"启动定位时出现异常",Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void addCircle(LatLng latlng, double radius) {
@@ -318,15 +377,6 @@ public class MainActivity extends FragmentActivity implements LocationSource,
         options.position(latlng);
         mLocMarker = aMap.addMarker(options);
         mLocMarker.setTitle(LOCATION_MARKER_FLAG);
-    }
-
-    private void checkAndGrantPermission() {
-        ActivityCompat.requestPermissions(this,
-                new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
-                        Manifest.permission.ACCESS_WIFI_STATE,
-                        Manifest.permission.READ_PHONE_STATE,
-                        Manifest.permission.ACCESS_COARSE_LOCATION,
-                        Manifest.permission.ACCESS_FINE_LOCATION}, 0);
     }
 
     @SuppressLint({"ResourceType", "NonConstantResourceId"})
@@ -360,5 +410,102 @@ public class MainActivity extends FragmentActivity implements LocationSource,
         } else {
             Log.e(TAG, "setDefaultMapType: ,未成功，aMap对象为空,布局ID为：" + id);
         }
+    }
+
+    public void checkStatePermission() {
+        // 检查是否有定位权限
+        // 检查权限的方法: ContextCompat.checkSelfPermission()两个参数分别是Context和权限名.
+        // 返回PERMISSION_GRANTED是有权限，PERMISSION_DENIED没有权限
+        if (ContextCompat.checkSelfPermission(MainActivity.this,
+                Manifest.permission.READ_PHONE_STATE)
+                != PackageManager.PERMISSION_GRANTED) {
+            //没有权限，向系统申请该权限。
+            Log.i(TAG, "没有权限");
+            requestPermission(PHONE_STATE_PERMISSION_CODE);
+        } else {
+            Log.d(TAG, TAG + "授予读取手机状态权限");
+        }
+    }
+
+    public void checkLocationPermission() {
+        // 检查是否有定位权限
+        // 检查权限的方法: ContextCompat.checkSelfPermission()两个参数分别是Context和权限名.
+        // 返回PERMISSION_GRANTED是有权限，PERMISSION_DENIED没有权限
+        if (ContextCompat.checkSelfPermission(MainActivity.this,
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            //没有权限，向系统申请该权限。
+            Log.i(TAG, "精确定位没有权限");
+            requestPermission(LOCATION_PERMISSION_CODE);
+        } else {
+            //已经获得权限，则执行定位请求。
+            startLocation();
+        }
+    }
+
+    public void requestPermission(int permissionCode) {
+        //通过编码获取权限的名字
+        String permission = permissionHelper.getPermissionString(permissionCode);
+        //没有权限就去要权限，如果权限被拒绝
+        if (!IsEmptyOrNullString(permission)) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    permission)) {
+                /* Show an expanation to the user *asynchronously* -- don't block
+                this thread waiting for the user's response! After the user
+                sees the explanation, try again to request the permission.*/
+                if (permissionCode == LOCATION_PERMISSION_CODE) {
+                    DialogFragment newFragment = HintDialogFragment
+                            .newInstance(R.string.location_description_title,
+                                    R.string.location_description_permission_reason,
+                                    permissionCode);
+                    newFragment.show(this.getFragmentManager(),
+                            HintDialogFragment.class.getSimpleName());
+
+                } else if (permissionCode == PHONE_STATE_PERMISSION_CODE) {
+                    DialogFragment newFragment =
+                            HintDialogFragment.newInstance(R.string.state_description_title,
+                                    R.string.state_description_permission_reason,
+                                    permissionCode);
+
+                    newFragment.show(this.getFragmentManager(), HintDialogFragment.class.getSimpleName());
+                }
+            } else {
+                //勾选不解释，直接要权限，一般直接执行这个
+                ActivityCompat.requestPermissions(this,
+                        new String[]{permission}, permissionCode);
+            }
+        }
+    }
+
+    /**
+     * 弹出对话框询问是否需要权限，这里是当授予权限时的处理函数
+     *
+     * @param requestCode 询问的权限
+     */
+    @Override
+    public void doPositiveClick(int requestCode) {
+        String permission = permissionHelper.getPermissionString(requestCode);
+        if (!IsEmptyOrNullString(permission)) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, permission)) {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{permission},
+                        requestCode);
+            } else {
+                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                intent.setData(Uri.parse("package:" + this.getPackageName()));
+                startActivity(intent);
+                startLocation();
+            }
+        }
+    }
+
+    /**
+     * 当拒绝权限时的做法
+     *
+     * @param requestCode
+     */
+    @Override
+    public void doNegativeClick(int requestCode) {
+        Toast.makeText(this, "请授予权限，否则地图无法正常定位", Toast.LENGTH_SHORT).show();
     }
 }

@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">CleverMap</string>
+
+    <string name="alert_dialog_ok">好的</string>
+    <string name="alert_dialog_cancel">取消</string>
+    <string name="state_description_title">请允许APP使用手机状态权限</string>
+    <string name="state_description_permission_reason">读取手机状态后可以在移动数据或WIFI或GPS中选择可用信号加载定位</string>
+    <string name="location_description_title">请允许APP使用定位权限</string>
+    <string name="location_description_permission_reason">定位功能需要获取位置权限</string>
 </resources>

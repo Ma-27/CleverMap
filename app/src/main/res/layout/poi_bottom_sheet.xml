@@ -19,7 +19,7 @@
         android:weightSum="3">
 
         <TextView
-            android:id="@+id/poi_name"
+            android:id="@+id/textView_poi_title"
             android:layout_width="0dp"
             android:layout_gravity="center_horizontal"
             android:layout_height="wrap_content"
@@ -36,7 +36,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:gravity="start"
+            android:gravity="center_horizontal"
             android:textColor="#666"
             android:textSize="15sp" />
     </LinearLayout>

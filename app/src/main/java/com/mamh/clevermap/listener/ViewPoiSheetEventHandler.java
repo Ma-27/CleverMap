@@ -13,7 +13,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.mamh.clevermap.R;
 import com.mamh.clevermap.interfaces.OnPoiChange;
 
-public class BottomSheetEventHandler extends BottomSheetBehavior.BottomSheetCallback
+public class ViewPoiSheetEventHandler extends BottomSheetBehavior.BottomSheetCallback
         implements OnPoiChange {
     private static final String TAG = "BottomSheetEventHandler成功";
     private final Context context;
@@ -25,10 +25,10 @@ public class BottomSheetEventHandler extends BottomSheetBehavior.BottomSheetCall
     private Poi poi = null;
     private LatLng currentLocation = null;
 
-    public BottomSheetEventHandler(Context context, View rootLayout) {
+    public ViewPoiSheetEventHandler(Context context, View rootLayout) {
         this.context = context;
         //设置TextView
-        titleTextView = rootLayout.findViewById(R.id.poi_name);
+        titleTextView = rootLayout.findViewById(R.id.textView_poi_title);
         distanceTextView = rootLayout.findViewById(R.id.poi_distance);
         this.rootLayout = rootLayout;
     }

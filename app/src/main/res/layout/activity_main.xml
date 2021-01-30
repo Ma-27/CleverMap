@@ -32,4 +32,7 @@
     <!-- 引入poi浏览 bottom sheet控件-->
     <include layout="@layout/poi_bottom_sheet" />
 
+    <!-- 引入poi搜索 bottom sheet控件-->
+    <include layout="@layout/search_bottom_sheet" />
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
