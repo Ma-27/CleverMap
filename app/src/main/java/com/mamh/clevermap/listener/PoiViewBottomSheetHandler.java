@@ -13,7 +13,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.mamh.clevermap.R;
 import com.mamh.clevermap.interfaces.OnPoiChange;
 
-public class ViewPoiSheetEventHandler extends BottomSheetBehavior.BottomSheetCallback
+public class PoiViewBottomSheetHandler extends BottomSheetBehavior.BottomSheetCallback
         implements OnPoiChange {
     private static final String TAG = "BottomSheetEventHandler成功";
     private final Context context;
@@ -21,11 +21,10 @@ public class ViewPoiSheetEventHandler extends BottomSheetBehavior.BottomSheetCal
     private final View rootLayout;
     private final TextView titleTextView;
     private final TextView distanceTextView;
-    //Toast.makeText(relatedComponentContext,"触发",Toast.LENGTH_SHORT).show();
     private Poi poi = null;
     private LatLng currentLocation = null;
 
-    public ViewPoiSheetEventHandler(Context context, View rootLayout) {
+    public PoiViewBottomSheetHandler(Context context, View rootLayout) {
         this.context = context;
         //设置TextView
         titleTextView = rootLayout.findViewById(R.id.textView_poi_title);
@@ -44,9 +43,9 @@ public class ViewPoiSheetEventHandler extends BottomSheetBehavior.BottomSheetCal
     public void onStateChanged(@NonNull View bottomSheet, int newState) {
         if (newState == BottomSheetBehavior.STATE_EXPANDED) {
             try {
+                //设置参数并开始搜索
                 PoiSearchHelper poiSearchHelper = new PoiSearchHelper(context, null, rootLayout);
                 poiSearchHelper.searchPOIIdAsyn(poi.getPoiId());// 异步搜索
-
             } catch (Exception nullPointerException) {
                 nullPointerException.printStackTrace();
             }

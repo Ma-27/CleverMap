@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clickable="true"
+    android:orientation="vertical"
+    android:padding="6sp">
+
+    <TextView
+        android:id="@+id/recycler_item_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8sp"
+        android:fontFamily="sans-serif-condensed"
+        android:padding="2sp"
+        android:text="默认标题"
+        android:textColor="#444"
+        android:textSize="14sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/recycler_item_location"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="2sp"
+        android:text="默认位置"
+        android:textColor="#555"
+        android:textSize="11sp" />
+
+    <TextView
+        android:id="@+id/recycler_item_address"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="2sp"
+        android:text="默认地址"
+        android:textColor="#777"
+        android:textSize="10sp" />
+
+</LinearLayout>

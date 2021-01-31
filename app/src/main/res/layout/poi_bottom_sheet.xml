@@ -7,13 +7,13 @@
     android:background="@color/white"
     android:orientation="vertical"
     android:padding="16dp"
-    app:behavior_hideable="true"
-    app:behavior_peekHeight="72sp"
+    android:elevation="3sp"
+    app:behavior_peekHeight="70sp"
     app:layout_behavior="@string/bottom_sheet_behavior">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="60sp"
         android:layout_gravity="center_vertical"
         android:orientation="horizontal"
         android:weightSum="3">
@@ -23,7 +23,7 @@
             android:layout_width="0dp"
             android:layout_gravity="center_horizontal"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="8sp"
             android:layout_weight="2"
             android:maxLines="2"
             android:text="默认POI标题"
@@ -45,9 +45,9 @@
         android:id="@+id/poi_item1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8sp"
+        android:layout_marginTop="3sp"
         android:padding="4sp"
-        android:text=""
+        android:text="信息暂缺"
         android:textColor="#450" />
 
     <TextView
@@ -55,13 +55,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="4sp"
-        android:text=""
+        android:text="信息暂缺"
         android:textColor="#450" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16sp"
+        android:layout_marginStart="4sp"
+        android:layout_marginTop="8sp"
         android:text="有关信息"
         android:textColor="#444"
         android:textStyle="bold" />
@@ -71,6 +72,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="暂缺该地点的联系电话"
+        android:padding="4sp"
         android:textColor="#450" />
 
     <!--

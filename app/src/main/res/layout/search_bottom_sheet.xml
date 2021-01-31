@@ -5,9 +5,10 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/white"
+    android:elevation="3sp"
     android:orientation="vertical"
     android:padding="16dp"
-    app:behavior_hideable="true"
+    app:behavior_peekHeight="64sp"
     app:layout_behavior="@string/bottom_sheet_behavior">
 
     <SearchView
@@ -16,5 +17,13 @@
         android:layout_height="wrap_content"
         android:background="@color/cardview_shadow_end_color"
         android:clickable="true"
-        android:focusable="true" />
+        android:focusable="true"
+        app:queryHint="手气不错？搜点什么吧"></SearchView>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/search_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+
 </LinearLayout>

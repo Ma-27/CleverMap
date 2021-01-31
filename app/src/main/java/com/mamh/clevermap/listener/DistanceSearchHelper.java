@@ -57,22 +57,27 @@ public class DistanceSearchHelper extends DistanceSearch
     @Override
     public void onDistanceSearched(DistanceResult distanceResult, int i) {
         distanceResult.getDistanceResults();
-        try {
-            //算个平均值
-            for (DistanceItem item :
-                    distanceResult.getDistanceResults()) {
-                distanceSum = item.getDistance() + distanceSum;
-                num++;
-            }
-            float distance = distanceSum / num;
+        //检查网络和服务是否正常
+        if (i != 1000) {
+            distanceTextView.setText("网络或服务器出错啦，错误代码" + i);
+        } else {
+            try {
+                //算个平均值
+                for (DistanceItem item :
+                        distanceResult.getDistanceResults()) {
+                    distanceSum = item.getDistance() + distanceSum;
+                    num++;
+                }
+                float distance = distanceSum / num;
 
-            distanceTextView.setText("距该点\n" + distance + "米");
-        } catch (NullPointerException nullPointerException) {
-            nullPointerException.printStackTrace();
-            distanceTextView.setText("空指针异常");
-        } catch (Exception e) {
-            distanceTextView.setText("遇到未知异常，api返回查询距离状态码" + i);
-            e.printStackTrace();
+                distanceTextView.setText("距该点\n" + distance + "米");
+            } catch (NullPointerException nullPointerException) {
+                nullPointerException.printStackTrace();
+                distanceTextView.setText("空指针异常");
+            } catch (Exception e) {
+                distanceTextView.setText("遇到未知异常，api返回查询距离状态码" + i);
+                e.printStackTrace();
+            }
         }
     }
 }
