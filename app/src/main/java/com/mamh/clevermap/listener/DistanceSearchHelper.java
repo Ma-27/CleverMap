@@ -18,11 +18,11 @@ import java.util.List;
  */
 public class DistanceSearchHelper extends DistanceSearch
         implements DistanceSearch.OnDistanceSearchListener {
+    public static float distance = 0.0f;
     private static final String TAG = "DistanceSearchHelper成功";
     private final DistanceQuery distanceQuery;
     private final DistanceSearch distanceSearch;
     private final TextView distanceTextView;
-    private List<DistanceItem> distanceResultList;
     private float distanceSum = 0.0f;
     private int num = 0;
 
@@ -68,7 +68,8 @@ public class DistanceSearchHelper extends DistanceSearch
                     distanceSum = item.getDistance() + distanceSum;
                     num++;
                 }
-                float distance = distanceSum / num;
+                distance = distanceSum / num;
+                //更新距离
 
                 distanceTextView.setText("距该点\n" + distance + "米");
             } catch (NullPointerException nullPointerException) {

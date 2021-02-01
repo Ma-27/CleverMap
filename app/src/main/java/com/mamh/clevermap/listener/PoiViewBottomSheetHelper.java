@@ -17,6 +17,8 @@ import com.mamh.clevermap.interfaces.OnPoiChange;
 public class PoiViewBottomSheetHelper extends BottomSheetBehavior.BottomSheetCallback
         implements OnPoiChange {
     private static final String TAG = "BottomSheetEventHandler成功";
+    //设置一个flag来辨别这是来自搜索的还是来自用户上拉的活动，当flag为true时启动搜索（view）
+    public static boolean pullUpFlag = false;
     private final Context context;
     //布局和View
     private final View rootLayout;
@@ -41,7 +43,7 @@ public class PoiViewBottomSheetHelper extends BottomSheetBehavior.BottomSheetCal
     @SuppressLint("LongLogTag")
     @Override
     public void onStateChanged(@NonNull View bottomSheet, int newState) {
-        if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+        if (newState == BottomSheetBehavior.STATE_EXPANDED && !pullUpFlag) {
             try {
                 //设置参数并开始搜索
                 PoiSearchHelper poiSearchHelper = new PoiSearchHelper(context, null, rootLayout);
@@ -49,7 +51,11 @@ public class PoiViewBottomSheetHelper extends BottomSheetBehavior.BottomSheetCal
             } catch (Exception nullPointerException) {
                 nullPointerException.printStackTrace();
             }
-        }
+        } else if (pullUpFlag) {
+            //啥也不用做,flag恢复默认状态
+            pullUpFlag = false;
+        } //啥也不用做,flag恢复默认状态
+
     }
 
     @SuppressLint("LongLogTag")

@@ -3,6 +3,7 @@ package com.mamh.clevermap.activity;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.DialogFragment;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
@@ -13,6 +14,7 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -57,7 +59,6 @@ import static com.mamh.clevermap.listener.GrantPermissionHelper.IsEmptyOrNullStr
 import static com.mamh.clevermap.listener.GrantPermissionHelper.LOCATION_PERMISSION_CODE;
 import static com.mamh.clevermap.listener.GrantPermissionHelper.PHONE_STATE_PERMISSION_CODE;
 
-//Toast.makeText(relatedComponentContext,"触发",Toast.LENGTH_SHORT).show();
 public class MainActivity extends FragmentActivity implements LocationSource,
         AMapLocationListener, HintPermissionCallback {
     //地图的缩放范围，值越高范围越小。默认设为17.5
@@ -81,7 +82,7 @@ public class MainActivity extends FragmentActivity implements LocationSource,
     private AMapLocationClient mLocationClient;
     private boolean mFirstLocate = true;
     //定位标记,和另一个大头针Marker，记录一些位置
-    private Marker locMarker = null, marker = null;
+    public static Marker locMarker = null, marker = null;
     //承载BottomSheet的linear layout布局
     private LinearLayout poiSheetLayout, searchSheetLayout;
     //自定义的针对POI的BottomSheet，处理BottomSheet类的滑动操作
@@ -219,6 +220,14 @@ public class MainActivity extends FragmentActivity implements LocationSource,
             if (marker != null) {
                 marker.destroy();
             }
+            //如果有键盘，则隐藏
+            InputMethodManager inputManager = (InputMethodManager)
+                    getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (inputManager != null) {
+                inputManager.hideSoftInputFromWindow(searchSheetLayout.getWindowToken(),
+                        InputMethodManager.HIDE_NOT_ALWAYS);
+            }
+
             LatLng position = poi.getCoordinate();
             marker = aMap.addMarker(new MarkerOptions().position(position));
             aMap.animateCamera(CameraUpdateFactory.newLatLngZoom(position, MAP_ZOOM));
@@ -232,7 +241,6 @@ public class MainActivity extends FragmentActivity implements LocationSource,
 
                 searchPoiSheetBehaviour.setHideable(true);
                 searchPoiSheetBehaviour.setState(BottomSheetBehavior.STATE_HIDDEN);
-                //检查
             } catch (NullPointerException nullPointerException) {
                 Log.e(TAG, "setUpMap: 处理POI onClick中遭遇空指针异常");
                 nullPointerException.printStackTrace();
@@ -377,8 +385,8 @@ public class MainActivity extends FragmentActivity implements LocationSource,
         try {
             mLocationClient.startLocation();
         } catch (NullPointerException nullPointerException) {
-            nullPointerException.printStackTrace();
             Log.e(TAG, "startLocation: 启动定位时出现空指针异常");
+            nullPointerException.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
             Log.e(TAG, "startLocation: 启动定位时出现异常");

@@ -16,13 +16,14 @@ import com.amap.api.services.help.InputtipsQuery;
 import com.amap.api.services.poisearch.PoiSearch;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.mamh.clevermap.R;
-import com.mamh.clevermap.adapter.PoiSearchAdapter;
+import com.mamh.clevermap.adapter.PoiSearchLayoutAdapter;
 
 import static com.mamh.clevermap.activity.MainActivity.searchPoiSheetBehaviour;
 import static com.mamh.clevermap.activity.MainActivity.viewPoiSheetBehaviour;
+import static com.mamh.clevermap.listener.PoiViewBottomSheetHelper.pullUpFlag;
 
 /**
- * 该类用于响应搜索poi的bottomSheet
+ * 该类用于响应搜索poi的bottomSheet,处理各种搜索指令
  */
 public class PoiSearchBottomSheetHelper extends
         BottomSheetBehavior.BottomSheetCallback implements androidx.appcompat.widget.SearchView.OnQueryTextListener {
@@ -32,7 +33,7 @@ public class PoiSearchBottomSheetHelper extends
     private final View searchRootLayout, infoRootLayout;
     //RecyclerView
     private final RecyclerView poiSearchRecyclerView;
-    private PoiSearchAdapter poiSearchAdapter;
+    private PoiSearchLayoutAdapter poiSearchLayoutAdapter;
 
     public PoiSearchBottomSheetHelper(Context context, View searchRootView, View infoRootView) {
         this.context = context;
@@ -56,12 +57,14 @@ public class PoiSearchBottomSheetHelper extends
      */
     @Override
     public boolean onQueryTextSubmit(String query) {
+        //TODO:这里其实没有使用直接搜索功能，因为搜索会暗示，故不进行处理
         PoiSearch.Query poiQuery = new PoiSearch.Query(query, "", "济南");
-        poiQuery.setPageSize(10);// 设置每页最多返回多少条poiItem
-        poiQuery.setPageNum(1);//设置查询页码
-
-        PoiSearchHelper poiSearchHelper = new PoiSearchHelper(context, poiQuery);
-        poiSearchHelper.searchPOIAsyn();
+        // 设置每页最多返回多少条poiItem，规定了10行
+        poiQuery.setPageSize(10);
+        //设置查询页码,这里规定好了1页
+        poiQuery.setPageNum(1);
+        //设置pullUpFlag
+        pullUpFlag = true;
         return false;
     }
 
@@ -74,7 +77,6 @@ public class PoiSearchBottomSheetHelper extends
     @SuppressLint("LongLogTag")
     @Override
     public boolean onQueryTextChange(String newText) {
-        Log.d(TAG, "onQueryTextChange: 收缩：" + newText);
         //当输入为空串或者为空时就尽可能使键盘和view收缩回去
         if (newText.equals("")) {
             //设置收缩
@@ -83,14 +85,21 @@ public class PoiSearchBottomSheetHelper extends
 
             viewPoiSheetBehaviour.setHideable(true);
             viewPoiSheetBehaviour.setState(BottomSheetBehavior.STATE_HIDDEN);
+
+
             //如果有键盘，则隐藏
-            InputMethodManager inputManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+            InputMethodManager inputManager = (InputMethodManager)
+                    context.getSystemService(Context.INPUT_METHOD_SERVICE);
             if (inputManager != null) {
                 inputManager.hideSoftInputFromWindow(searchRootLayout.getWindowToken(),
                         InputMethodManager.HIDE_NOT_ALWAYS);
             }
 
         } else {
+            //设置searchSheet的状态为半探出，给用户呈现结果
+            searchPoiSheetBehaviour.setHideable(false);
+            searchPoiSheetBehaviour.setState(BottomSheetBehavior.STATE_HALF_EXPANDED);
+
             //正常开始搜索，第二个参数传入null或者“”代表在全国进行检索，否则按照传入的city进行检索
             InputtipsQuery inputQuery = new InputtipsQuery(newText, "济南");
             inputQuery.setCityLimit(false);//限制在当前城市
@@ -100,8 +109,8 @@ public class PoiSearchBottomSheetHelper extends
                 //解析返回的内容,i为返回状态码，i为1000时成功
                 if (i == 1000) {
                     //为适配器初始化，由于list的值在变化，故每次需要重新初始化
-                    poiSearchAdapter = new PoiSearchAdapter(context, list, infoRootLayout, searchPoiSheetBehaviour);
-                    poiSearchRecyclerView.setAdapter(poiSearchAdapter);
+                    poiSearchLayoutAdapter = new PoiSearchLayoutAdapter(context, list, infoRootLayout);
+                    poiSearchRecyclerView.setAdapter(poiSearchLayoutAdapter);
                 } else {
                     Log.w(TAG, "获取输入提示时出错，错误代码：" + i);
                 }
