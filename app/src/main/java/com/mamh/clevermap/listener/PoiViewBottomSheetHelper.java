@@ -11,9 +11,10 @@ import com.amap.api.maps.model.LatLng;
 import com.amap.api.maps.model.Poi;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.mamh.clevermap.R;
+import com.mamh.clevermap.activity.MainActivity;
 import com.mamh.clevermap.interfaces.OnPoiChange;
 
-public class PoiViewBottomSheetHandler extends BottomSheetBehavior.BottomSheetCallback
+public class PoiViewBottomSheetHelper extends BottomSheetBehavior.BottomSheetCallback
         implements OnPoiChange {
     private static final String TAG = "BottomSheetEventHandler成功";
     private final Context context;
@@ -22,9 +23,8 @@ public class PoiViewBottomSheetHandler extends BottomSheetBehavior.BottomSheetCa
     private final TextView titleTextView;
     private final TextView distanceTextView;
     private Poi poi = null;
-    private LatLng currentLocation = null;
 
-    public PoiViewBottomSheetHandler(Context context, View rootLayout) {
+    public PoiViewBottomSheetHelper(Context context, View rootLayout) {
         this.context = context;
         //设置TextView
         titleTextView = rootLayout.findViewById(R.id.textView_poi_title);
@@ -68,7 +68,8 @@ public class PoiViewBottomSheetHandler extends BottomSheetBehavior.BottomSheetCa
         try {
             titleTextView.setText(poi.getName());
             LatLng position = poi.getCoordinate();
-            new DistanceSearchHelper(context, distanceTextView).distanceQuery(position, currentLocation);
+            //前一个为解析出来的的点击的poi，后一个为当前位置
+            new DistanceSearchHelper(context, distanceTextView).distanceQuery(position, MainActivity.location);
         } catch (NullPointerException nullPointerException) {
             nullPointerException.printStackTrace();
             titleTextView.setText("出现空指针异常");
@@ -77,12 +78,4 @@ public class PoiViewBottomSheetHandler extends BottomSheetBehavior.BottomSheetCa
         }
     }
 
-    /**
-     * Main activity中设置当前位置
-     *
-     * @param Location 由MainActivity传入当前位置
-     */
-    public void setCurrentLocation(LatLng Location) {
-        currentLocation = Location;
-    }
 }

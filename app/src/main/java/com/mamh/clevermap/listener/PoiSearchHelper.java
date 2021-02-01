@@ -24,9 +24,9 @@ public class PoiSearchHelper extends PoiSearch implements PoiSearch.OnPoiSearchL
     /**
      * 响应来自poi的搜索请求
      *
-     * @param context
+     * @param context        传入上下文供操作用
      * @param query
-     * @param layoutRootView
+     * @param layoutRootView 根视图，用于加载搜索结果信息
      */
     @SuppressLint("NonConstantResourceId")
     public PoiSearchHelper(Context context, Query query, View layoutRootView) {
@@ -69,15 +69,7 @@ public class PoiSearchHelper extends PoiSearch implements PoiSearch.OnPoiSearchL
     @SuppressLint("SetTextI18n")
     @Override
     public void onPoiItemSearched(@NotNull PoiItem poiItem, int i) {
-        //设置个BottomSheet的可见性
-        /*
-        searchPoiSheetBehaviour.setHideable(true);
-        searchPoiSheetBehaviour.setState(BottomSheetBehavior.STATE_HIDDEN);
-
-        viewPoiSheetBehaviour.setHideable(false);
-        viewPoiSheetBehaviour.setState(BottomSheetBehavior.STATE_EXPANDED);
-         */
-
+        //返回信息正常设置为这个
         if (i != 1000) {
             titleView.setText("网络异常\n错误代码：" + i);
             item2View.setText("");

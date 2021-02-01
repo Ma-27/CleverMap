@@ -27,7 +27,7 @@ public class PoiSearchAdapter extends
     //inflater负责从item.xml中读取布局，并将其组织为RecyclerView
     private final LayoutInflater inflater;
     private final View poiViewRootLayout;
-    Context context;
+    final Context context;
     private View recyclerRootLayout;
     //控制BottomSheet的升降
     private BottomSheetBehavior viewPoiSheetBehaviour, searchPoiSheetBehaviour;
@@ -37,8 +37,8 @@ public class PoiSearchAdapter extends
      *
      * @param context                 当前的上下文
      * @param queryTips               传入的输入预测数据
-     * @param poiInfoRootView
-     * @param searchPoiSheetBehaviour
+     * @param poiInfoRootView         显示poi信息的bottomSheet布局
+     * @param searchPoiSheetBehaviour 暂时可以忽略
      */
     public PoiSearchAdapter(Context context, List<Tip> queryTips, View poiInfoRootView,
                             BottomSheetBehavior searchPoiSheetBehaviour) {

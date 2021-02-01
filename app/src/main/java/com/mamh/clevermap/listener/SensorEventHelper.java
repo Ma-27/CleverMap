@@ -16,8 +16,6 @@ public class SensorEventHelper implements SensorEventListener {
     private final SensorManager mSensorManager;
     //一个传感器，这里传感屏幕纵横
     private final Sensor mSensor;
-    //现有角度的delta量
-    private final int TIME_SENSOR = 100;
     private final Context mContext;
     //检测屏幕旋转角度，这个是原有角度
     private long lastTime = 0;
@@ -78,6 +76,8 @@ public class SensorEventHelper implements SensorEventListener {
     //监听器检测到回调方法
     @Override
     public void onSensorChanged(SensorEvent event) {
+        //现有角度的delta量
+        int TIME_SENSOR = 100;
         if (System.currentTimeMillis() - lastTime < TIME_SENSOR) {
             return;
         }

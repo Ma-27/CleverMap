@@ -41,13 +41,14 @@ import com.amap.api.maps.model.MarkerOptions;
 import com.amap.api.maps.model.MyLocationStyle;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.mamh.clevermap.R;
 import com.mamh.clevermap.fragment.ChooseMapTypeDialogFragment;
 import com.mamh.clevermap.fragment.HintDialogFragment;
 import com.mamh.clevermap.interfaces.HintPermissionCallback;
 import com.mamh.clevermap.listener.GrantPermissionHelper;
-import com.mamh.clevermap.listener.PoiSearchBottomSheetHandler;
-import com.mamh.clevermap.listener.PoiViewBottomSheetHandler;
+import com.mamh.clevermap.listener.PoiSearchBottomSheetHelper;
+import com.mamh.clevermap.listener.PoiViewBottomSheetHelper;
 import com.mamh.clevermap.listener.SensorEventHelper;
 
 import org.jetbrains.annotations.NotNull;
@@ -61,37 +62,31 @@ public class MainActivity extends FragmentActivity implements LocationSource,
         AMapLocationListener, HintPermissionCallback {
     //地图的缩放范围，值越高范围越小。默认设为17.5
     public static float MAP_ZOOM = 17.5f;
-    MapView mapView;
-    AMap aMap;
+    public static MapView mapView;
+    public static AMap aMap;
     public static final String LOCATION_MARKER_FLAG = "您当前的位置";
     private static final int STROKE_COLOR = Color.argb(180, 3, 145, 255);
     private static final int FILL_COLOR = Color.argb(10, 0, 0, 180);
     private static final String TAG = "MainActivity成功";
     //权限控制类对象
     GrantPermissionHelper permissionHelper;
-    LatLng location;
-    //定位标记
-    private Marker mLocMarker;
+    public static LatLng location;
+    //BottomSheet控件
+    public static BottomSheetBehavior<LinearLayout> viewPoiSheetBehaviour, searchPoiSheetBehaviour;
     //定位范围圆形
     private Circle mCircle;
     //控制蓝点旋转的传感器
     private SensorEventHelper mSensorHelper;
     private LocationSource.OnLocationChangedListener mListener;
     private AMapLocationClient mLocationClient;
-    private AMapLocationClientOption mLocationOption;
     private boolean mFirstLocate = true;
-
-    //随便一个大头针Marker，记录一些位置
-    private final Marker locateMarker = null;
-    private Marker marker = null;
-
-    //承载ButtomSheet的linear layout布局
+    //定位标记,和另一个大头针Marker，记录一些位置
+    private Marker locMarker = null, marker = null;
+    //承载BottomSheet的linear layout布局
     private LinearLayout poiSheetLayout, searchSheetLayout;
-    //ButtomSheet控件
-    private BottomSheetBehavior viewPoiSheetBehaviour, searchPoiSheetBehaviour;
     //自定义的针对POI的BottomSheet，处理BottomSheet类的滑动操作
-    private PoiViewBottomSheetHandler viewPoiSheetHandler = null;
-    private PoiSearchBottomSheetHandler searchPoiSheetHandler = null;
+    private PoiViewBottomSheetHelper viewPoiSheetHelper = null;
+    private PoiSearchBottomSheetHelper searchPoiSheetHelper = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -123,17 +118,17 @@ public class MainActivity extends FragmentActivity implements LocationSource,
         //处理点击poi的事件
         poiSheetLayout = findViewById(R.id.poi_sheet_linear_layout);
         viewPoiSheetBehaviour = BottomSheetBehavior.from(poiSheetLayout);
-        viewPoiSheetHandler = new PoiViewBottomSheetHandler
+        viewPoiSheetHelper = new PoiViewBottomSheetHelper
                 (getApplicationContext(), poiSheetLayout);
-        viewPoiSheetBehaviour.setBottomSheetCallback(viewPoiSheetHandler);
+        viewPoiSheetBehaviour.addBottomSheetCallback(viewPoiSheetHelper);
         viewPoiSheetBehaviour.setState(BottomSheetBehavior.STATE_HIDDEN);
 
         //处理搜索poi事件
         searchSheetLayout = findViewById(R.id.search_sheet_linear_layout);
         searchPoiSheetBehaviour = BottomSheetBehavior.from(searchSheetLayout);
-        searchPoiSheetHandler = new PoiSearchBottomSheetHandler
+        searchPoiSheetHelper = new PoiSearchBottomSheetHelper
                 (getApplicationContext(), searchSheetLayout, poiSheetLayout);
-        searchPoiSheetBehaviour.setBottomSheetCallback(searchPoiSheetHandler);
+        searchPoiSheetBehaviour.addBottomSheetCallback(searchPoiSheetHelper);
         //设为默认露出搜索框
         searchPoiSheetBehaviour.setState(BottomSheetBehavior.STATE_COLLAPSED);
     }
@@ -144,14 +139,11 @@ public class MainActivity extends FragmentActivity implements LocationSource,
         //在activity执行onResume时执行mMapView.onResume ()，重新绘制加载地图
         mapView.onResume();
 
-        //注册传感器
-        mSensorHelper = new SensorEventHelper(getApplicationContext());
-        if (mSensorHelper != null) {
-            mSensorHelper.registerSensorListener();
-        } else {
-            Toast.makeText(MainActivity.this, "注册传感器出错", Toast.LENGTH_SHORT).show();
-            Log.d(TAG, "onResume: 注册传感器出错");
+        if (mSensorHelper == null) {
+            //注册传感器
+            mSensorHelper = new SensorEventHelper(getApplicationContext());
         }
+        mSensorHelper.registerSensorListener();
     }
 
     @Override
@@ -174,8 +166,8 @@ public class MainActivity extends FragmentActivity implements LocationSource,
             mSensorHelper.setCurrentMarker(null);
             mSensorHelper = null;
         }
-        if (mLocMarker != null) {
-            mLocMarker.destroy();
+        if (locMarker != null) {
+            locMarker.destroy();
         }
         //在activity执行onDestroy时执行mMapView.onDestroy()，销毁地图
         mapView.onDestroy();
@@ -184,14 +176,13 @@ public class MainActivity extends FragmentActivity implements LocationSource,
         }
 
         //移除POI响应点击
-        aMap.removeOnPOIClickListener(poi -> {
-            if (viewPoiSheetBehaviour != null && poiSheetLayout != null) {
-                viewPoiSheetBehaviour.setHideable(true);
-                poiSheetLayout.setVisibility(View.GONE);
-                poiSheetLayout = null;
-                viewPoiSheetBehaviour = null;
-            }
-        });
+        if (viewPoiSheetBehaviour != null && poiSheetLayout != null) {
+            viewPoiSheetBehaviour.onDetachedFromLayoutParams();
+
+            poiSheetLayout.setVisibility(View.GONE);
+            poiSheetLayout = null;
+            viewPoiSheetBehaviour = null;
+        }
 
         //移除SearchBottomSheet
         if (searchPoiSheetBehaviour != null && searchSheetLayout != null) {
@@ -232,8 +223,8 @@ public class MainActivity extends FragmentActivity implements LocationSource,
             marker = aMap.addMarker(new MarkerOptions().position(position));
             aMap.animateCamera(CameraUpdateFactory.newLatLngZoom(position, MAP_ZOOM));
             try {
-                viewPoiSheetHandler.setPoi(poi);
-                viewPoiSheetHandler.updatePOIText();
+                viewPoiSheetHelper.setPoi(poi);
+                viewPoiSheetHelper.updatePOIText();
                 //设置搜索和查看poi的BottomSheet状态
                 viewPoiSheetBehaviour.setState(BottomSheetBehavior.STATE_COLLAPSED);
                 //设置BottomSheet不可隐藏（避免误会和吐槽）
@@ -287,25 +278,19 @@ public class MainActivity extends FragmentActivity implements LocationSource,
     @Override
     public void onLocationChanged(AMapLocation aMapLocation) {
         if (mListener != null && aMapLocation != null) {
-            if (aMapLocation != null
-                    && aMapLocation.getErrorCode() == 0) {
-
-                LatLng location = new LatLng(aMapLocation.getLatitude(), aMapLocation.getLongitude());
+            if (aMapLocation.getErrorCode() == 0) {
+                location = new LatLng(aMapLocation.getLatitude(), aMapLocation.getLongitude());
                 if (mFirstLocate) {
                     mFirstLocate = false;
-                    addCircle(location, aMapLocation.getAccuracy());//添加定位精度圆
-                    addMarker(location);//添加定位图标
-                    mSensorHelper.setCurrentMarker(mLocMarker);//定位图标旋转
+                    addLocCircle(location, aMapLocation.getAccuracy());//添加定位精度圆
+                    addLocationMarker(location);//添加定位图标
+                    mSensorHelper.setCurrentMarker(locMarker);//定位图标旋转
                     aMap.animateCamera(CameraUpdateFactory.newLatLngZoom(location, MAP_ZOOM));
                 } else {
                     //mSensorHelper.setCurrentMarker(mLocMarker);//定位图标旋转
                     mCircle.setCenter(location);
                     mCircle.setRadius(aMapLocation.getAccuracy());
-                    mLocMarker.setPosition(location);
-                }
-                //为ButtomSheetDialog设置当前位置
-                if (viewPoiSheetHandler != null) {
-                    viewPoiSheetHandler.setCurrentLocation(location);
+                    locMarker.setPosition(location);
                 }
             } else {
                 handleErrorLocation(aMapLocation.getErrorCode(), aMapLocation.getErrorInfo());
@@ -313,7 +298,6 @@ public class MainActivity extends FragmentActivity implements LocationSource,
         }
     }
 
-    @NotNull
     private void handleErrorLocation(int errorCode, String errInfo) {
         String errString = "定位失败,错误码为：";
         switch (errorCode) {
@@ -340,14 +324,13 @@ public class MainActivity extends FragmentActivity implements LocationSource,
                 break;
         }
         Log.e(TAG, errString + "\n" + errInfo);
-        Toast.makeText(MainActivity.this, errString, Toast.LENGTH_SHORT).show();
-        //Snackbar.make(mapView,errString,Snackbar.LENGTH_SHORT);
+        Snackbar.make(mapView, errString, Snackbar.LENGTH_SHORT).show();
     }
 
     /**
      * 点击地图上的定位小图标才开启这个
      *
-     * @param onLocationChangedListener
+     * @param onLocationChangedListener 当location发生改变时重设listener为这个
      */
     @Override
     public void activate(OnLocationChangedListener onLocationChangedListener) {
@@ -356,7 +339,7 @@ public class MainActivity extends FragmentActivity implements LocationSource,
             //初始化定位
             mLocationClient = new AMapLocationClient(this);
             //初始化定位参数
-            mLocationOption = new AMapLocationClientOption();
+            AMapLocationClientOption mLocationOption = new AMapLocationClientOption();
             //设置定位监听
             mLocationClient.setLocationListener(this);
             //设置为高精度定位模式
@@ -395,16 +378,14 @@ public class MainActivity extends FragmentActivity implements LocationSource,
             mLocationClient.startLocation();
         } catch (NullPointerException nullPointerException) {
             nullPointerException.printStackTrace();
-            Log.d(TAG, "startLocation: 启动定位时出现空指针异常");
-            //Toast.makeText(MainActivity.this,"",Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "startLocation: 启动定位时出现空指针异常");
         } catch (Exception e) {
             e.printStackTrace();
-            Log.d(TAG, "startLocation: 启动定位时出现异常");
-            //Toast.makeText(MainActivity.this,"启动定位时出现异常",Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "startLocation: 启动定位时出现异常");
         }
     }
 
-    private void addCircle(LatLng latlng, double radius) {
+    private void addLocCircle(LatLng latlng, double radius) {
         CircleOptions options = new CircleOptions();
         options.strokeWidth(1f);
         options.fillColor(FILL_COLOR);
@@ -414,8 +395,8 @@ public class MainActivity extends FragmentActivity implements LocationSource,
         mCircle = aMap.addCircle(options);
     }
 
-    private void addMarker(LatLng latlng) {
-        if (mLocMarker != null) {
+    private void addLocationMarker(LatLng latlng) {
+        if (locMarker != null) {
             return;
         }
         MarkerOptions options = new MarkerOptions();
@@ -423,8 +404,8 @@ public class MainActivity extends FragmentActivity implements LocationSource,
                 R.mipmap.navi_map_gps_locked)));
         options.anchor(0.5f, 0.5f);
         options.position(latlng);
-        mLocMarker = aMap.addMarker(options);
-        mLocMarker.setTitle(LOCATION_MARKER_FLAG);
+        locMarker = aMap.addMarker(options);
+        locMarker.setTitle(LOCATION_MARKER_FLAG);
     }
 
     @SuppressLint({"ResourceType", "NonConstantResourceId"})
@@ -550,7 +531,7 @@ public class MainActivity extends FragmentActivity implements LocationSource,
     /**
      * 当拒绝权限时的做法
      *
-     * @param requestCode
+     * @param requestCode 传递的状态码
      */
     @Override
     public void doNegativeClick(int requestCode) {
