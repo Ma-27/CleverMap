@@ -21,6 +21,8 @@ import com.mamh.clevermap.activity.MainActivity;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+
 import static com.mamh.clevermap.activity.MainActivity.MAP_ZOOM;
 import static com.mamh.clevermap.activity.MainActivity.aMap;
 import static com.mamh.clevermap.activity.MainActivity.mapView;
@@ -34,6 +36,7 @@ public class PoiSearchHelper extends PoiSearch implements PoiSearch.OnPoiSearchL
     private final View rootView;
     private TextView titleView = null, item1View = null, item2View = null,
             telView = null, distanceView = null;
+    private ArrayList<PoiItem> poiSets = null;
 
     /**
      * 响应来自poi的搜索请求
@@ -60,7 +63,22 @@ public class PoiSearchHelper extends PoiSearch implements PoiSearch.OnPoiSearchL
         //解析result获取POI信息
         if (i == 1000) {
             //正确的处理信息
-            poiResult.getPois();
+            poiSets = poiResult.getPois();
+        } else {
+            //对返回的错误码进行处理
+            switch (i) {
+                case 1200:
+                    Snackbar.make(mapView, "请求参数非法\n错误代码：" + i, Snackbar.LENGTH_SHORT).show();
+                    handleSearchError(i);
+                    break;
+                case 1804:
+                    Snackbar.make(mapView, "网络未连接，请检查网路是否畅通\n错误代码：" + i, Snackbar.LENGTH_SHORT).show();
+                    handleSearchError(i);
+                    break;
+                default:
+                    Snackbar.make(mapView, "出现未知错误\n错误代码：" + i, Snackbar.LENGTH_SHORT).show();
+                    handleSearchError(i);
+            }
         }
     }
 
@@ -73,15 +91,8 @@ public class PoiSearchHelper extends PoiSearch implements PoiSearch.OnPoiSearchL
     @SuppressLint("SetTextI18n")
     @Override
     public void onPoiItemSearched(@NotNull PoiItem poiItem, int i) {
-        //返回信息正常设置为这个
-        if (i != 1000) {
-            Log.e(TAG, "onPoiItemSearched: 网络异常\n错误代码：" + i);
-            Snackbar.make(mapView, "网络异常\n错误代码：" + i, Snackbar.LENGTH_SHORT).show();
-            titleView.setText("");
-            item2View.setText("");
-            item1View.setText("");
-            telView.setText("");
-        } else {
+        //返回信息正常设置为这个，否则处理异常信息
+        if (i == 1000) {
             //将searchBottomSheet设为可以隐藏
             if (searchPoiSheetBehaviour.getState() == BottomSheetBehavior.STATE_SETTLING) {
                 searchPoiSheetBehaviour.setHideable(true);
@@ -127,6 +138,35 @@ public class PoiSearchHelper extends PoiSearch implements PoiSearch.OnPoiSearchL
                 Log.e(TAG, "onPoiItemSearched: ，搜索发现异常");
                 titleView.setText("发现未知异常");
             }
+        } else {
+            //对返回的错误码进行处理
+            switch (i) {
+                case 1200:
+                    Snackbar.make(mapView, "请求参数非法\n错误代码：" + i, Snackbar.LENGTH_SHORT).show();
+                    handleSearchError(i);
+                    break;
+                case 1804:
+                    Snackbar.make(mapView, "网络未连接，请检查网路是否畅通\n错误代码：" + i, Snackbar.LENGTH_SHORT).show();
+                    handleSearchError(i);
+                    break;
+                default:
+                    Snackbar.make(mapView, "出现未知错误\n错误代码：" + i, Snackbar.LENGTH_SHORT).show();
+                    handleSearchError(i);
+            }
+        }
+    }
+
+    private void handleSearchError(int errorCode) {
+        try {
+            viewPoiSheetBehaviour.setState(BottomSheetBehavior.STATE_COLLAPSED);
+            searchPoiSheetBehaviour.setState(BottomSheetBehavior.STATE_COLLAPSED);
+            Log.e(TAG, "onPoi(item)Searched: 异常错误代码：" + errorCode);
+            titleView.setText("");
+            item2View.setText("");
+            item1View.setText("");
+            telView.setText("");
+        } catch (Exception nullPointerException) {
+            nullPointerException.printStackTrace();
         }
     }
 }

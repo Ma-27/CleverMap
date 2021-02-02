@@ -8,6 +8,7 @@ import android.view.inputmethod.InputMethodManager;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.SearchView;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -58,7 +59,7 @@ public class PoiSearchBottomSheetHelper extends
     @Override
     public boolean onQueryTextSubmit(String query) {
         //TODO:这里其实没有使用直接搜索功能，因为搜索会暗示，故不进行处理
-        PoiSearch.Query poiQuery = new PoiSearch.Query(query, "", "济南");
+        PoiSearch.Query poiQuery = new PoiSearch.Query(query, "", "");
         // 设置每页最多返回多少条poiItem，规定了10行
         poiQuery.setPageSize(10);
         //设置查询页码,这里规定好了1页
@@ -101,7 +102,7 @@ public class PoiSearchBottomSheetHelper extends
             searchPoiSheetBehaviour.setState(BottomSheetBehavior.STATE_HALF_EXPANDED);
 
             //正常开始搜索，第二个参数传入null或者“”代表在全国进行检索，否则按照传入的city进行检索
-            InputtipsQuery inputQuery = new InputtipsQuery(newText, "济南");
+            InputtipsQuery inputQuery = new InputtipsQuery(newText, "");
             inputQuery.setCityLimit(false);//限制在当前城市
 
             Inputtips inputTips = new Inputtips(context, inputQuery);
@@ -111,6 +112,9 @@ public class PoiSearchBottomSheetHelper extends
                     //为适配器初始化，由于list的值在变化，故每次需要重新初始化
                     poiSearchLayoutAdapter = new PoiSearchLayoutAdapter(context, list, infoRootLayout);
                     poiSearchRecyclerView.setAdapter(poiSearchLayoutAdapter);
+                    //添加分割线
+                    poiSearchRecyclerView.addItemDecoration
+                            (new DividerItemDecoration(context, DividerItemDecoration.VERTICAL));
                 } else {
                     Log.w(TAG, "获取输入提示时出错，错误代码：" + i);
                 }

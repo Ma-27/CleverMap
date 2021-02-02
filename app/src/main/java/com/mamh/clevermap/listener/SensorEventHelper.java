@@ -82,27 +82,25 @@ public class SensorEventHelper implements SensorEventListener {
             return;
         }
         //旋转定位图标
-        switch (event.sensor.getType()) {
-            case Sensor.TYPE_ORIENTATION: {
-                float x = event.values[0];
-                x += getScreenRotationOnPhone(mContext);
-                x %= 360.0F;
-                if (x > 180.0F)
-                    x -= 360.0F;
-                else if (x < -180.0F)
-                    x += 360.0F;
+        if (event.sensor.getType() == Sensor.TYPE_ORIENTATION) {
+            float x = event.values[0];
+            x += getScreenRotationOnPhone(mContext);
+            x %= 360.0F;
+            if (x > 180.0F)
+                x -= 360.0F;
+            else if (x < -180.0F)
+                x += 360.0F;
 
-                //求浮点数的绝对值
-                if (Math.abs(mAngle - x) < 3.0f) {
-                    break;
-                }
-                mAngle = Float.isNaN(x) ? 0 : x;
-                if (mMarker != null) {
-                    //为蓝点设置旋转角度
-                    mMarker.setRotateAngle(360 - mAngle);
-                }
-                lastTime = System.currentTimeMillis();
+            //求浮点数的绝对值
+            if (Math.abs(mAngle - x) < 3.0f) {
+                return;
             }
+            mAngle = Float.isNaN(x) ? 0 : x;
+            if (mMarker != null) {
+                //为蓝点设置旋转角度
+                mMarker.setRotateAngle(360 - mAngle);
+            }
+            lastTime = System.currentTimeMillis();
         }
 
     }

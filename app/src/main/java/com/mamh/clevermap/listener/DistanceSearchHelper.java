@@ -69,9 +69,12 @@ public class DistanceSearchHelper extends DistanceSearch
                     num++;
                 }
                 distance = distanceSum / num;
-                //更新距离
-
-                distanceTextView.setText("距该点\n" + distance + "米");
+                //更新距离,要是比1000米多，就显示千米
+                if (distance / 1000 > 1) {
+                    distanceTextView.setText("距你直线\n" + distance / 1000.0f + "千米");
+                } else {
+                    distanceTextView.setText("距你直线\n" + distance + "米");
+                }
             } catch (NullPointerException nullPointerException) {
                 nullPointerException.printStackTrace();
                 distanceTextView.setText("空指针异常");
