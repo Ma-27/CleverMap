@@ -1,8 +1,8 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
-    android:tint="#FFDEFC"
     android:viewportWidth="108"
+    android:tint="#FFDEFC"
     android:viewportHeight="108">
   <group
       android:scaleX="2.2446"

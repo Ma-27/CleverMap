@@ -1,79 +1,108 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:card_view="http://schemas.android.com/tools"
     android:id="@+id/poi_sheet_linear_layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/white"
     android:orientation="vertical"
-    android:padding="16dp"
+    android:padding="12sp"
     android:elevation="3sp"
-    app:behavior_peekHeight="70sp"
+    app:behavior_peekHeight="84sp"
     app:layout_behavior="@string/bottom_sheet_behavior">
 
-    <LinearLayout
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="60sp"
-        android:layout_gravity="center_vertical"
-        android:orientation="horizontal"
-        android:weightSum="3">
+        android:layout_height="match_parent"
+        app:cardElevation="3sp"
+        card_view:cardUseCompatPadding="true">
 
-        <TextView
-            android:id="@+id/textView_poi_title"
-            android:layout_width="0dp"
-            android:layout_gravity="center_horizontal"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8sp"
-            android:layout_weight="2"
-            android:maxLines="2"
-            android:text="默认POI标题"
-            android:textColor="#443"
-            android:textSize="20sp"
-            android:textStyle="bold" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/poi_distance"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center_horizontal"
-            android:textColor="#666"
-            android:textSize="15sp" />
-    </LinearLayout>
+            <View
+                android:id="@+id/divider2"
+                android:layout_width="48sp"
+                android:layout_height="3sp"
+                android:layout_gravity="center"
+                android:layout_marginBottom="8sp"
+                android:background="?android:attr/listDivider" />
 
-    <TextView
-        android:id="@+id/poi_item1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="3sp"
-        android:padding="4sp"
-        android:text="信息暂缺"
-        android:textColor="#450" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="60sp"
+                android:layout_gravity="center_vertical"
+                android:orientation="horizontal"
+                android:weightSum="3">
 
-    <TextView
-        android:id="@+id/poi_item2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="4sp"
-        android:text="信息暂缺"
-        android:textColor="#450" />
+                <TextView
+                    android:id="@+id/textView_poi_title"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginBottom="8sp"
+                    android:layout_weight="2"
+                    android:maxLines="2"
+                    android:text="默认POI标题"
+                    android:textColor="#443"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="4sp"
-        android:layout_marginTop="8sp"
-        android:text="有关信息"
-        android:textColor="#444"
-        android:textStyle="bold" />
+                <TextView
+                    android:id="@+id/poi_distance"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center_horizontal"
+                    android:textColor="#666"
+                    android:textSize="15sp" />
+            </LinearLayout>
 
-    <TextView
-        android:id="@+id/poi_info_tel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="暂缺该地点的联系电话"
-        android:padding="4sp"
-        android:textColor="#450" />
+            <View
+                android:id="@+id/divider"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?android:attr/listDivider" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4sp"
+                android:layout_marginTop="8sp"
+                android:text="有关信息"
+                android:textColor="#444"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/poi_item1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3sp"
+                android:padding="4sp"
+                android:text="暂缺简要地址"
+                android:textColor="#450" />
+
+            <TextView
+                android:id="@+id/poi_item2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="4sp"
+                android:text="信息暂缺"
+                android:textColor="#450" />
+
+            <TextView
+                android:id="@+id/poi_info_tel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="4sp"
+                android:text="暂缺该地点的联系电话"
+                android:textColor="#450" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
 
     <!--
     <Button
@@ -81,7 +110,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"
         android:background="#3D5AFE"
-        android:text="前往相关网站"
+        android:text="路线"
         android:textColor="#fff" />
 
         -->

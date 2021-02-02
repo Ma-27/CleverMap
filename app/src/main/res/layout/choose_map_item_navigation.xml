@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
     android:id="@+id/photo_navigation_table_item"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content">
@@ -8,6 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:elevation="@dimen/cardview_default_elevation"
+        card_view:cardUseCompatPadding="true"
         android:onClick="setMapType">
 
         <LinearLayout

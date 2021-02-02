@@ -103,6 +103,7 @@ public class MainActivity extends FragmentActivity implements LocationSource,
         mapView.onCreate(savedInstanceState);
         setUpMap();
         configureMapSettings();
+
         //选择map类型的处理和监听
         FloatingActionButton switchMapType = findViewById(R.id.switchMapType);
         switchMapType.setOnClickListener(v -> {
@@ -139,6 +140,15 @@ public class MainActivity extends FragmentActivity implements LocationSource,
         super.onResume();
         //在activity执行onResume时执行mMapView.onResume ()，重新绘制加载地图
         mapView.onResume();
+
+        //反馈发现aMap在onResume时可能为空，这里如果为空则重新初始化
+        if (aMap == null) {
+            aMap = mapView.getMap();
+
+            //初始化map,设置默认显示的地图类型
+            aMap.setMapType(AMap.MAP_TYPE_NORMAL);
+            aMap.setTrafficEnabled(true);
+        }
 
         if (mSensorHelper == null) {
             //注册传感器
@@ -295,7 +305,6 @@ public class MainActivity extends FragmentActivity implements LocationSource,
                     mSensorHelper.setCurrentMarker(locMarker);//定位图标旋转
                     aMap.animateCamera(CameraUpdateFactory.newLatLngZoom(location, MAP_ZOOM));
                 } else {
-                    //mSensorHelper.setCurrentMarker(mLocMarker);//定位图标旋转
                     mCircle.setCenter(location);
                     mCircle.setRadius(aMapLocation.getAccuracy());
                     locMarker.setPosition(location);
@@ -371,7 +380,6 @@ public class MainActivity extends FragmentActivity implements LocationSource,
     public void deactivate() {
         mListener = null;
         if (mLocationClient != null) {
-            //mLocationClient.stopLocation();
             mLocationClient.onDestroy();
         }
         mLocationClient = null;
