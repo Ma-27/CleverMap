@@ -7,6 +7,8 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.amap.api.maps.CameraUpdateFactory;
 import com.amap.api.maps.model.LatLng;
 import com.amap.api.maps.model.MarkerOptions;
@@ -18,6 +20,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.snackbar.Snackbar;
 import com.mamh.clevermap.R;
 import com.mamh.clevermap.activity.MainActivity;
+import com.mamh.clevermap.adapter.PoiSearchLayoutAdapter;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -36,7 +39,7 @@ public class PoiSearchHelper extends PoiSearch implements PoiSearch.OnPoiSearchL
     private final View rootView;
     private TextView titleView = null, item1View = null, item2View = null,
             telView = null, distanceView = null;
-    private ArrayList<PoiItem> poiSets = null;
+    private RecyclerView recyclerView;
 
     /**
      * 响应来自poi的搜索请求
@@ -58,12 +61,26 @@ public class PoiSearchHelper extends PoiSearch implements PoiSearch.OnPoiSearchL
         distanceView = rootView.findViewById(R.id.poi_distance);
     }
 
+    public PoiSearchHelper(Context context, Query query,
+                           View layoutRootView, RecyclerView recyclerView) {
+        super(context, query);
+        setOnPoiSearchListener(this);
+        this.context = context;
+        rootView = layoutRootView;
+        this.recyclerView = recyclerView;
+    }
+
     @Override
     public void onPoiSearched(PoiResult poiResult, int i) {
         //解析result获取POI信息
         if (i == 1000) {
             //正确的处理信息
-            poiSets = poiResult.getPois();
+            ArrayList<PoiItem> poiSets = poiResult.getPois();
+            //为适配器初始化，由于list的值在变化，故每次需要重新初始化
+            if (poiSets != null) {
+                PoiSearchLayoutAdapter poiSearchLayoutAdapter = new PoiSearchLayoutAdapter(context, poiSets, rootView);
+                recyclerView.setAdapter(poiSearchLayoutAdapter);
+            }
         } else {
             //对返回的错误码进行处理
             switch (i) {

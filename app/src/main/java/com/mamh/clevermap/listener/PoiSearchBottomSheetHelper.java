@@ -48,6 +48,9 @@ public class PoiSearchBottomSheetHelper extends
         //为RecyclerView初始化
         poiSearchRecyclerView = searchRootLayout.findViewById(R.id.search_recycler_view);
         poiSearchRecyclerView.setLayoutManager(new LinearLayoutManager(context));
+        //添加分割线
+        poiSearchRecyclerView.addItemDecoration
+                (new DividerItemDecoration(context, DividerItemDecoration.VERTICAL));
     }
 
     /**
@@ -56,14 +59,19 @@ public class PoiSearchBottomSheetHelper extends
      * @param query 输入的字符串
      * @return false表明用默认模式处理输入和显示
      */
+    @SuppressLint("LongLogTag")
     @Override
     public boolean onQueryTextSubmit(String query) {
-        //TODO:这里其实没有使用直接搜索功能，因为搜索会暗示，故不进行处理
+        //这里添加了直接搜索功能，但区别不大
         PoiSearch.Query poiQuery = new PoiSearch.Query(query, "", "");
         // 设置每页最多返回多少条poiItem，规定了10行
-        poiQuery.setPageSize(10);
+        poiQuery.setPageSize(12);
         //设置查询页码,这里规定好了1页
         poiQuery.setPageNum(1);
+        //构建poiSearch并发送请求
+        PoiSearchHelper poiSearchHelper =
+                new PoiSearchHelper(context, poiQuery, infoRootLayout, poiSearchRecyclerView);
+        poiSearchHelper.searchPOIAsyn();
         //设置pullUpFlag
         pullUpFlag = true;
         return false;
@@ -112,9 +120,6 @@ public class PoiSearchBottomSheetHelper extends
                     //为适配器初始化，由于list的值在变化，故每次需要重新初始化
                     poiSearchLayoutAdapter = new PoiSearchLayoutAdapter(context, list, infoRootLayout);
                     poiSearchRecyclerView.setAdapter(poiSearchLayoutAdapter);
-                    //添加分割线
-                    poiSearchRecyclerView.addItemDecoration
-                            (new DividerItemDecoration(context, DividerItemDecoration.VERTICAL));
                 } else {
                     Log.w(TAG, "获取输入提示时出错，错误代码：" + i);
                 }

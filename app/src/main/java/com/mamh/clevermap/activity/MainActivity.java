@@ -16,7 +16,6 @@ import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
@@ -453,7 +452,7 @@ public class MainActivity extends FragmentActivity implements LocationSource,
                     break;
             }
         } else {
-            Log.e(TAG, "setDefaultMapType: ,未成功，aMap对象为空,布局ID为：" + id);
+            Log.e(TAG, "setDefaultMapType: 未成功，aMap对象为空,布局ID为：" + id);
         }
     }
 
@@ -468,7 +467,7 @@ public class MainActivity extends FragmentActivity implements LocationSource,
             Log.i(TAG, "没有权限");
             requestPermission(PHONE_STATE_PERMISSION_CODE);
         } else {
-            Log.d(TAG, TAG + "授予读取手机状态权限");
+            Log.d(TAG, "已授予读取手机状态权限");
         }
     }
 
@@ -483,6 +482,7 @@ public class MainActivity extends FragmentActivity implements LocationSource,
             Log.i(TAG, "精确定位没有权限");
             requestPermission(LOCATION_PERMISSION_CODE);
         } else {
+            Log.d(TAG, "已授予手机定位权限");
             //已经获得权限，则执行定位请求。
             startLocation();
         }
@@ -551,6 +551,6 @@ public class MainActivity extends FragmentActivity implements LocationSource,
      */
     @Override
     public void doNegativeClick(int requestCode) {
-        Toast.makeText(this, "请授予权限，否则地图无法正常定位", Toast.LENGTH_SHORT).show();
+        Snackbar.make(mapView, "请授予权限，否则地图无法正常定位", Snackbar.LENGTH_SHORT).show();
     }
 }
