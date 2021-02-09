@@ -1,4 +1,4 @@
-package com.mamh.clevermap.listener;
+package com.mamh.clevermap.listener.main;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.AppCompatButton;
 
 import com.amap.api.maps.model.LatLng;
 import com.amap.api.maps.model.Poi;
@@ -24,6 +25,7 @@ public class PoiViewBottomSheetHelper extends BottomSheetBehavior.BottomSheetCal
     private final View rootLayout;
     private final TextView titleTextView;
     private final TextView distanceTextView;
+    private final AppCompatButton botton;
     private Poi poi = null;
 
     public PoiViewBottomSheetHelper(Context context, View rootLayout) {
@@ -32,6 +34,7 @@ public class PoiViewBottomSheetHelper extends BottomSheetBehavior.BottomSheetCal
         titleTextView = rootLayout.findViewById(R.id.textView_poi_title);
         distanceTextView = rootLayout.findViewById(R.id.poi_distance);
         this.rootLayout = rootLayout;
+        botton = rootLayout.findViewById(R.id.button);
     }
 
     /**

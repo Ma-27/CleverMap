@@ -8,4 +8,5 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="searchBar_background">#91F0F0F0</color>
+    <color name="blue">#0000FF</color>
 </resources>

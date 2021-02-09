@@ -16,7 +16,7 @@ import com.amap.api.services.help.Tip;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.snackbar.Snackbar;
 import com.mamh.clevermap.R;
-import com.mamh.clevermap.listener.PoiSearchHelper;
+import com.mamh.clevermap.listener.main.PoiSearchHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +24,7 @@ import java.util.List;
 import static com.mamh.clevermap.activity.MainActivity.mapView;
 import static com.mamh.clevermap.activity.MainActivity.searchPoiSheetBehaviour;
 import static com.mamh.clevermap.activity.MainActivity.viewPoiSheetBehaviour;
-import static com.mamh.clevermap.listener.PoiViewBottomSheetHelper.pullUpFlag;
+import static com.mamh.clevermap.listener.main.PoiViewBottomSheetHelper.pullUpFlag;
 
 public class PoiSearchLayoutAdapter extends
         RecyclerView.Adapter<PoiSearchLayoutAdapter.PoiSearchViewHolder> {

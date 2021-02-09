@@ -100,19 +100,18 @@
                 android:padding="4sp"
                 android:text="暂缺该地点的联系电话"
                 android:textColor="#450" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/blue"
+                android:onClick="launchRouteActivity"
+                android:text="路线"
+                android:textColor="@color/white" />
+
+
         </LinearLayout>
     </androidx.cardview.widget.CardView>
-
-
-    <!--
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        android:background="#3D5AFE"
-        android:text="路线"
-        android:textColor="#fff" />
-
-        -->
 
 </LinearLayout>

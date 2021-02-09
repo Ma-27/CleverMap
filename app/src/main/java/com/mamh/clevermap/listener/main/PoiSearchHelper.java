@@ -1,4 +1,4 @@
-package com.mamh.clevermap.listener;
+package com.mamh.clevermap.listener.main;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -17,10 +17,11 @@ import com.amap.api.services.core.PoiItem;
 import com.amap.api.services.poisearch.PoiResult;
 import com.amap.api.services.poisearch.PoiSearch;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
-import com.google.android.material.snackbar.Snackbar;
 import com.mamh.clevermap.R;
 import com.mamh.clevermap.activity.MainActivity;
 import com.mamh.clevermap.adapter.PoiSearchLayoutAdapter;
+import com.mamh.clevermap.util.AmapUtilityTools;
+import com.mamh.clevermap.util.ErrorHandler;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -28,7 +29,6 @@ import java.util.ArrayList;
 
 import static com.mamh.clevermap.activity.MainActivity.MAP_ZOOM;
 import static com.mamh.clevermap.activity.MainActivity.aMap;
-import static com.mamh.clevermap.activity.MainActivity.mapView;
 import static com.mamh.clevermap.activity.MainActivity.marker;
 import static com.mamh.clevermap.activity.MainActivity.searchPoiSheetBehaviour;
 import static com.mamh.clevermap.activity.MainActivity.viewPoiSheetBehaviour;
@@ -40,6 +40,7 @@ public class PoiSearchHelper extends PoiSearch implements PoiSearch.OnPoiSearchL
     private TextView titleView = null, item1View = null, item2View = null,
             telView = null, distanceView = null;
     private RecyclerView recyclerView;
+    private static LatLng poiLatLng;
 
     /**
      * 响应来自poi的搜索请求
@@ -70,6 +71,15 @@ public class PoiSearchHelper extends PoiSearch implements PoiSearch.OnPoiSearchL
         this.recyclerView = recyclerView;
     }
 
+    /**
+     * 返回当前poi的经纬度
+     *
+     * @return
+     */
+    public static LatLng getPoiLatLng() {
+        return poiLatLng;
+    }
+
     @Override
     public void onPoiSearched(PoiResult poiResult, int i) {
         //解析result获取POI信息
@@ -82,20 +92,22 @@ public class PoiSearchHelper extends PoiSearch implements PoiSearch.OnPoiSearchL
                 recyclerView.setAdapter(poiSearchLayoutAdapter);
             }
         } else {
-            //对返回的错误码进行处理
-            switch (i) {
-                case 1200:
-                    Snackbar.make(mapView, "请求参数非法\n错误代码：" + i, Snackbar.LENGTH_SHORT).show();
-                    handleSearchError(i);
-                    break;
-                case 1804:
-                    Snackbar.make(mapView, "网络未连接，请检查网路是否畅通\n错误代码：" + i, Snackbar.LENGTH_SHORT).show();
-                    handleSearchError(i);
-                    break;
-                default:
-                    Snackbar.make(mapView, "出现未知错误\n错误代码：" + i, Snackbar.LENGTH_SHORT).show();
-                    handleSearchError(i);
-            }
+            handleSearchError(i);
+            ErrorHandler.handleErrorCode(i);
+        }
+    }
+
+    private void handleSearchError(int errorCode) {
+        try {
+            viewPoiSheetBehaviour.setState(BottomSheetBehavior.STATE_COLLAPSED);
+            searchPoiSheetBehaviour.setState(BottomSheetBehavior.STATE_COLLAPSED);
+            Log.e(TAG, "onPoi(item)Searched: 异常错误代码：" + errorCode);
+            titleView.setText("");
+            item2View.setText("");
+            item1View.setText("");
+            telView.setText("");
+        } catch (Exception nullPointerException) {
+            nullPointerException.printStackTrace();
         }
     }
 
@@ -138,7 +150,7 @@ public class PoiSearchHelper extends PoiSearch implements PoiSearch.OnPoiSearchL
                 }
 
                 LatLonPoint poiPoint = poiItem.getLatLonPoint();
-                LatLng poiLatLng = new LatLng(poiPoint.getLatitude(), poiPoint.getLongitude());
+                poiLatLng = AmapUtilityTools.convertToLatLng(poiPoint);
                 //移动视角
                 aMap.animateCamera(CameraUpdateFactory.newLatLngZoom(poiLatLng, MAP_ZOOM));
                 //放置大头针
@@ -147,43 +159,20 @@ public class PoiSearchHelper extends PoiSearch implements PoiSearch.OnPoiSearchL
                 new DistanceSearchHelper(context, distanceView)
                         .distanceQuery(poiLatLng, MainActivity.location);
             } catch (NullPointerException nullPointerException) {
-                nullPointerException.printStackTrace();
                 Log.e(TAG, "onPoiItemSearched: ，搜索发现空指针异常");
-                titleView.setText("程序发现空指针异常");
+                nullPointerException.printStackTrace();
+                titleView.setText("搜索发现空指针异常");
+                item1View.setText("目前暂不支持搜索公交线路，请见谅");
+                item2View.setText("如果并未搜索公交线路，请把该问题反馈给开发者");
             } catch (Exception e) {
-                e.printStackTrace();
                 Log.e(TAG, "onPoiItemSearched: ，搜索发现异常");
-                titleView.setText("发现未知异常");
+                e.printStackTrace();
+                titleView.setText("搜索发现未知异常");
             }
         } else {
             //对返回的错误码进行处理
-            switch (i) {
-                case 1200:
-                    Snackbar.make(mapView, "请求参数非法\n错误代码：" + i, Snackbar.LENGTH_SHORT).show();
-                    handleSearchError(i);
-                    break;
-                case 1804:
-                    Snackbar.make(mapView, "网络未连接，请检查网路是否畅通\n错误代码：" + i, Snackbar.LENGTH_SHORT).show();
-                    handleSearchError(i);
-                    break;
-                default:
-                    Snackbar.make(mapView, "出现未知错误\n错误代码：" + i, Snackbar.LENGTH_SHORT).show();
-                    handleSearchError(i);
-            }
-        }
-    }
-
-    private void handleSearchError(int errorCode) {
-        try {
-            viewPoiSheetBehaviour.setState(BottomSheetBehavior.STATE_COLLAPSED);
-            searchPoiSheetBehaviour.setState(BottomSheetBehavior.STATE_COLLAPSED);
-            Log.e(TAG, "onPoi(item)Searched: 异常错误代码：" + errorCode);
-            titleView.setText("");
-            item2View.setText("");
-            item1View.setText("");
-            telView.setText("");
-        } catch (Exception nullPointerException) {
-            nullPointerException.printStackTrace();
+            handleSearchError(i);
+            ErrorHandler.handleErrorCode(i);
         }
     }
 }

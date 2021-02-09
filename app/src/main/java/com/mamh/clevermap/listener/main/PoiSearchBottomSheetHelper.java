@@ -1,4 +1,4 @@
-package com.mamh.clevermap.listener;
+package com.mamh.clevermap.listener.main;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -21,7 +21,7 @@ import com.mamh.clevermap.adapter.PoiSearchLayoutAdapter;
 
 import static com.mamh.clevermap.activity.MainActivity.searchPoiSheetBehaviour;
 import static com.mamh.clevermap.activity.MainActivity.viewPoiSheetBehaviour;
-import static com.mamh.clevermap.listener.PoiViewBottomSheetHelper.pullUpFlag;
+import static com.mamh.clevermap.listener.main.PoiViewBottomSheetHelper.pullUpFlag;
 
 /**
  * 该类用于响应搜索poi的bottomSheet,处理各种搜索指令

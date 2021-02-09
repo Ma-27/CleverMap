@@ -47,16 +47,18 @@ import com.mamh.clevermap.R;
 import com.mamh.clevermap.fragment.ChooseMapTypeDialogFragment;
 import com.mamh.clevermap.fragment.HintDialogFragment;
 import com.mamh.clevermap.interfaces.HintPermissionCallback;
-import com.mamh.clevermap.listener.GrantPermissionHelper;
-import com.mamh.clevermap.listener.PoiSearchBottomSheetHelper;
-import com.mamh.clevermap.listener.PoiViewBottomSheetHelper;
-import com.mamh.clevermap.listener.SensorEventHelper;
+import com.mamh.clevermap.listener.main.GrantPermissionHelper;
+import com.mamh.clevermap.listener.main.PoiSearchBottomSheetHelper;
+import com.mamh.clevermap.listener.main.PoiViewBottomSheetHelper;
+import com.mamh.clevermap.listener.main.SensorEventHelper;
+import com.mamh.clevermap.util.ErrorHandler;
 
 import org.jetbrains.annotations.NotNull;
 
-import static com.mamh.clevermap.listener.GrantPermissionHelper.IsEmptyOrNullString;
-import static com.mamh.clevermap.listener.GrantPermissionHelper.LOCATION_PERMISSION_CODE;
-import static com.mamh.clevermap.listener.GrantPermissionHelper.PHONE_STATE_PERMISSION_CODE;
+import static com.mamh.clevermap.listener.main.GrantPermissionHelper.IsEmptyOrNullString;
+import static com.mamh.clevermap.listener.main.GrantPermissionHelper.LOCATION_PERMISSION_CODE;
+import static com.mamh.clevermap.listener.main.GrantPermissionHelper.PHONE_STATE_PERMISSION_CODE;
+import static com.mamh.clevermap.listener.main.PoiSearchHelper.getPoiLatLng;
 
 public class MainActivity extends FragmentActivity implements LocationSource,
         AMapLocationListener, HintPermissionCallback {
@@ -309,38 +311,10 @@ public class MainActivity extends FragmentActivity implements LocationSource,
                     locMarker.setPosition(location);
                 }
             } else {
-                handleErrorLocation(aMapLocation.getErrorCode(), aMapLocation.getErrorInfo());
+                Log.e(TAG, "onLocationChanged: 定位遭遇服务器报错，查看详情：");
+                ErrorHandler.handleLocateError(aMapLocation.getErrorCode(), aMapLocation.getErrorInfo());
             }
         }
-    }
-
-    private void handleErrorLocation(int errorCode, String errInfo) {
-        String errString = "定位失败,错误码为：";
-        switch (errorCode) {
-            case 1:
-                errString = errString + errorCode + "，一些重要参数为空";
-                break;
-            case 2:
-                errString = errString + errorCode + "，由于仅扫描到单个wifi，且没有基站信息";
-                break;
-            case 3:
-                errString = errString + errorCode + "，获取到的请求参数为空，可能获取过程中出现异常";
-                break;
-            case 4:
-                errString = errString + errorCode + "，请求服务器过程中出现异常，请检查网络情况";
-                break;
-            case 7:
-                errString = errString + errorCode + "，Key错误，请联系开发者或重试";
-                break;
-            case 12:
-                errString = errString + errorCode + "，缺少定位权限或未开启获取位置信息功能，请到设置中开启";
-                break;
-            default:
-                errString = errString + errorCode;
-                break;
-        }
-        Log.e(TAG, errString + "\n" + errInfo);
-        Snackbar.make(mapView, errString, Snackbar.LENGTH_SHORT).show();
     }
 
     /**
@@ -411,24 +385,23 @@ public class MainActivity extends FragmentActivity implements LocationSource,
     }
 
     private void addLocationMarker(LatLng latlng) {
-        if (locMarker != null) {
-            return;
+        if (locMarker == null) {
+            MarkerOptions options = new MarkerOptions();
+            options.icon(BitmapDescriptorFactory
+                    .fromBitmap(BitmapFactory.decodeResource(this.getResources(),
+                            R.mipmap.navi_map_gps_locked)));
+            options.anchor(0.5f, 0.5f);
+            options.position(latlng);
+            locMarker = aMap.addMarker(options);
+            locMarker.setTitle(LOCATION_MARKER_FLAG);
         }
-        MarkerOptions options = new MarkerOptions();
-        options.icon(BitmapDescriptorFactory.fromBitmap(BitmapFactory.decodeResource(this.getResources(),
-                R.mipmap.navi_map_gps_locked)));
-        options.anchor(0.5f, 0.5f);
-        options.position(latlng);
-        locMarker = aMap.addMarker(options);
-        locMarker.setTitle(LOCATION_MARKER_FLAG);
     }
 
     @SuppressLint({"ResourceType", "NonConstantResourceId"})
     @RequiresApi(api = Build.VERSION_CODES.Q)
     public void setMapType(View view) {
         int id = view.getSourceLayoutResId();
-        Log.d(TAG, "setMapType: " + id);
-        if (aMap != null) {
+        try {
             switch (id) {
                 //当选中地图为导航时
                 case R.layout.choose_map_item_navigation:
@@ -451,8 +424,12 @@ public class MainActivity extends FragmentActivity implements LocationSource,
                     aMap.setTrafficEnabled(true);
                     break;
             }
-        } else {
+        } catch (NullPointerException nullPointerException) {
             Log.e(TAG, "setDefaultMapType: 未成功，aMap对象为空,布局ID为：" + id);
+            nullPointerException.printStackTrace();
+        } catch (Exception e) {
+            Log.e(TAG, "setDefaultMapType: 未成功，遇到未知异常" + id);
+            e.printStackTrace();
         }
     }
 
@@ -552,5 +529,29 @@ public class MainActivity extends FragmentActivity implements LocationSource,
     @Override
     public void doNegativeClick(int requestCode) {
         Snackbar.make(mapView, "请授予权限，否则地图无法正常定位", Snackbar.LENGTH_SHORT).show();
+    }
+
+    /**
+     * Button的OnClick响应，只能在activity中使用显式intent
+     *
+     * @param view 传入button的view对象
+     */
+    public void launchRouteActivity(View view) {
+        Intent intent = new Intent(this, RouteActivity.class);
+        try {
+            intent.putExtra("current_location_latitude", location.latitude);
+            intent.putExtra("current_location_longitude", location.longitude);
+            intent.putExtra("poi_latitude", getPoiLatLng().latitude);
+            intent.putExtra("poi_longitude", getPoiLatLng().longitude);
+        } catch (NullPointerException nullPointerException) {
+            Log.e(TAG, "launchRouteActivity: 获得poi经纬度时出现空指针");
+            nullPointerException.printStackTrace();
+        } catch (Exception e) {
+            Log.e(TAG, "launchRouteActivity: 出现未知异常");
+            e.printStackTrace();
+        } finally {
+            //打开路线activity
+            startActivity(intent);
+        }
     }
 }
