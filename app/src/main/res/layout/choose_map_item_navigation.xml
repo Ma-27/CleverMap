@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/photo_navigation_table_item"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content">
 
@@ -15,7 +14,6 @@
             android:orientation="vertical">
 
             <ImageView
-                android:id="@+id/photo_navigation_tableView_item"
                 android:layout_width="64dp"
                 android:layout_height="64dp"
                 android:layout_weight="1"
@@ -29,7 +27,6 @@
                 android:layout_height="12dp" />
 
             <TextView
-                android:id="@+id/textView_navigation_table_item"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"

@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.util.Log;
 
 import com.amap.api.maps.AMap;
+import com.amap.api.maps.CameraUpdateFactory;
 import com.amap.api.maps.model.BitmapDescriptor;
 import com.amap.api.maps.model.BitmapDescriptorFactory;
 import com.amap.api.maps.model.LatLng;
@@ -13,6 +14,7 @@ import com.amap.api.maps.model.LatLngBounds;
 import com.amap.api.maps.model.Marker;
 import com.amap.api.maps.model.MarkerOptions;
 import com.amap.api.maps.model.Polyline;
+import com.amap.api.maps.model.PolylineOptions;
 import com.mamh.clevermap.R;
 
 import java.util.ArrayList;
@@ -32,16 +34,18 @@ public class MyRouteOverlay {
     //设置缩放范围，边上适当留了一点空间（这里定死了，改不了）
     private static final int BOUNDS_ZOOM = 60;
 
-    protected Context context;
-    protected List<Marker> stationMarkers = new ArrayList<>();
+    protected final Context context;
+    protected final List<Marker> stationMarkers = new ArrayList<>();
     //线的线性表（线的聚合）
-    protected List<Polyline> allPolyLines = new ArrayList<>();
+    protected final List<Polyline> allPolyLines = new ArrayList<>();
     //开始和结束的Marker
     protected Marker startMarker, endMarker;
-    protected LatLng startPoint, endPoint;
+    protected LatLng start, end;
     protected AMap aMap;
     //标识的小图标
     private Bitmap startBit, endBit, busBit, walkBit, driveBit;
+    //设置各个转弯节点可见性，默认可见
+    protected boolean isNodeIconVisible = true;
 
     public MyRouteOverlay(Context context) {
         this.context = context;
@@ -70,7 +74,7 @@ public class MyRouteOverlay {
      *
      * @return 返回宽度，为整数
      */
-    protected static int getBoundsZoom() {
+    public static int getBoundsZoom() {
         return BOUNDS_ZOOM;
     }
 
@@ -156,6 +160,50 @@ public class MyRouteOverlay {
         return BitmapDescriptorFactory.fromResource(R.drawable.amap_end);
     }
 
+    /**
+     * 在图上添加起点和终点
+     */
+    protected void addStartAndEndMarker() {
+        //设置起点图标
+        startMarker = routeAMap.addMarker((new MarkerOptions())
+                .position(start).icon(getStartBitmapDescriptor())
+                .title("起点"));
+        //设置终点图标
+        endMarker = routeAMap.addMarker((new MarkerOptions()).position(end)
+                .icon(getEndBitmapDescriptor()).title("终点"));
+    }
+
+    /**
+     * 在图层中描出线段
+     *
+     * @param options 前面构建的marker和线属性的的集合
+     */
+    protected void drawPolyLine(PolylineOptions options) {
+        try {
+            Polyline polyline = routeAMap.addPolyline(options);
+            allPolyLines.add(polyline);
+        } catch (NullPointerException nullPointerException) {
+            Log.e(TAG, "addPolyLine: 出现空指针异常");
+            nullPointerException.printStackTrace();
+        }
+    }
+
+    /**
+     * 移动镜头到当前的视角。
+     */
+    public void zoomToSpan() {
+        try {
+            LatLngBounds bounds = getLatLngBounds();
+            routeAMap.animateCamera
+                    (CameraUpdateFactory.newLatLngBounds(bounds, getBoundsZoom()));
+        } catch (NullPointerException e) {
+            Log.e(TAG, "zoomToSpan: 出现空指针异常");
+            e.printStackTrace();
+        } catch (Exception e) {
+            Log.e(TAG, "zoomToSpan: 出现异常，不明");
+            e.printStackTrace();
+        }
+    }
 
     /**
      * 给步行Marker设置图标，并返回更换图标的图片。如不用默认图片，需要重写此方法。
@@ -165,6 +213,34 @@ public class MyRouteOverlay {
     protected BitmapDescriptor getWalkBitmapDescriptor() {
         return BitmapDescriptorFactory.fromResource(R.drawable.amap_man);
     }
+
+    /**
+     * 给骑行Marker设置图标，并返回更换图标的图片。如不用默认图片，需要重写此方法。
+     *
+     * @return 更换的Marker图片。
+     */
+    protected BitmapDescriptor getRideBitmapDescriptor() {
+        return BitmapDescriptorFactory.fromResource(R.drawable.amap_ride);
+    }
+
+    /**
+     * 给驾车Marker设置图标，并返回更换图标的图片。如不用默认图片，需要重写此方法。
+     *
+     * @return 更换的Marker图片。
+     */
+    protected BitmapDescriptor getDriveBitmapDescriptor() {
+        return BitmapDescriptorFactory.fromResource(R.drawable.amap_car);
+    }
+
+    /**
+     * 给公交Marker设置图标，并返回更换图标的图片。如不用默认图片，需要重写此方法。
+     *
+     * @return 更换的Marker图片。
+     */
+    protected BitmapDescriptor getBusBitmapDescriptor() {
+        return BitmapDescriptorFactory.fromResource(R.drawable.amap_bus);
+    }
+
 
     /**
      * 给路线填充，并返回填充的图片。如不用默认图片，需要重写此方法。
@@ -183,13 +259,32 @@ public class MyRouteOverlay {
      */
     protected LatLngBounds getLatLngBounds() {
         LatLngBounds.Builder b = LatLngBounds.builder();
-        b.include(new LatLng(startPoint.latitude, startPoint.longitude));
-        b.include(new LatLng(endPoint.latitude, endPoint.longitude));
+        b.include(new LatLng(start.latitude, start.longitude));
+        b.include(new LatLng(end.latitude, end.longitude));
         for (Polyline polyline : allPolyLines) {
             for (LatLng point : polyline.getPoints()) {
                 b.include(point);
             }
         }
         return b.build();
+    }
+
+    /**
+     * 控制路段节点图标是否显示。
+     *
+     * @param visible true为显示节点图标，false为不显示。
+     */
+    public void setNodeIconVisibility(boolean visible) {
+        try {
+            isNodeIconVisible = visible;
+            if (this.stationMarkers.size() > 0) {
+                for (int i = 0; i < this.stationMarkers.size(); i++) {
+                    this.stationMarkers.get(i).setVisible(visible);
+                }
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "setNodeIconVisibility: 出现未知异常");
+            e.printStackTrace();
+        }
     }
 }

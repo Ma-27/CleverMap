@@ -25,7 +25,6 @@ public class PoiViewBottomSheetHelper extends BottomSheetBehavior.BottomSheetCal
     private final View rootLayout;
     private final TextView titleTextView;
     private final TextView distanceTextView;
-    private final AppCompatButton botton;
     private Poi poi = null;
 
     public PoiViewBottomSheetHelper(Context context, View rootLayout) {
@@ -34,7 +33,7 @@ public class PoiViewBottomSheetHelper extends BottomSheetBehavior.BottomSheetCal
         titleTextView = rootLayout.findViewById(R.id.textView_poi_title);
         distanceTextView = rootLayout.findViewById(R.id.poi_distance);
         this.rootLayout = rootLayout;
-        botton = rootLayout.findViewById(R.id.button);
+        AppCompatButton botton = rootLayout.findViewById(R.id.button);
     }
 
     /**

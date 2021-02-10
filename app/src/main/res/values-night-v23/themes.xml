@@ -12,8 +12,11 @@
         <item name="colorOnSecondary">@color/black</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor">#191919</item>
-        <!-- Customize your theme here. -->
 
+        <!-- Customize your theme here. -->
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
     </style>
 
+    <style name="Theme.CleverMap.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 </resources>

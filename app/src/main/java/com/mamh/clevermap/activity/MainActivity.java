@@ -63,7 +63,7 @@ import static com.mamh.clevermap.listener.main.PoiSearchHelper.getPoiLatLng;
 public class MainActivity extends FragmentActivity implements LocationSource,
         AMapLocationListener, HintPermissionCallback {
     //地图的缩放范围，值越高范围越小。默认设为17.5
-    public static float MAP_ZOOM = 17.5f;
+    public static final float MAP_ZOOM = 17.5f;
     public static MapView mapView;
     public static AMap aMap;
     public static final String LOCATION_MARKER_FLAG = "您当前的位置";

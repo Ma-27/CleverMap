@@ -20,7 +20,7 @@ public class AmapUtilityTools {
     /**
      * 用来将LatLonPoint队形转化为latLonPoint，和上面的方法互逆
      *
-     * @param latLon 经纬度，这里只有经度和纬度
+     * @param latLng 经纬度，这里只有经度和纬度
      * @return latLon经纬度点
      */
     public static LatLonPoint convertToLatLonPoint(LatLng latLng) {

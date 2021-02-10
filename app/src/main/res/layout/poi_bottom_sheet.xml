@@ -24,7 +24,6 @@
             android:orientation="vertical">
 
             <View
-                android:id="@+id/divider2"
                 android:layout_width="48sp"
                 android:layout_height="3sp"
                 android:layout_gravity="center"
@@ -62,7 +61,6 @@
             </LinearLayout>
 
             <View
-                android:id="@+id/divider"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="?android:attr/listDivider" />

@@ -9,7 +9,7 @@
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:theme="@style/Theme.CleverMap.NoActionBar">
+        android:theme="@style/Theme.CleverMap">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
@@ -19,12 +19,6 @@
             app:popupTheme="@style/Theme.CleverMap.PopupOverlay" />
 
     </com.google.android.material.appbar.AppBarLayout>
-
-    <com.amap.api.maps.MapView
-        android:id="@+id/route_map"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginBottom="0sp" />
 
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton

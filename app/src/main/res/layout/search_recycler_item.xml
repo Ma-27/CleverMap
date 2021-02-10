@@ -48,7 +48,6 @@
     </LinearLayout>
 
     <ImageView
-        android:id="@+id/imageView"
         android:layout_width="0sp"
         android:layout_height="match_parent"
         android:layout_weight="1"

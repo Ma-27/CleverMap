@@ -138,8 +138,10 @@ public class PoiSearchLayoutAdapter extends
 
     //适配器的内部类，它包含用于从item（单项目）布局中显示或暂存一个项目的必需的信息
     class PoiSearchViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        TextView titleTextView, locationTextView, addressTextView;
-        PoiSearchLayoutAdapter adapter;
+        final TextView titleTextView;
+        final TextView locationTextView;
+        final TextView addressTextView;
+        final PoiSearchLayoutAdapter adapter;
 
         //该内部类的构造方法，这里一次进行初始化，避免每创建一个itemView就初始化一次的麻烦
         public PoiSearchViewHolder(@NonNull View itemView, PoiSearchLayoutAdapter adapter) {
