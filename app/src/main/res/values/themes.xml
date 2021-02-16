@@ -1,6 +1,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Theme.CleverMap" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="Theme.CleverMap" parent="Theme.MaterialComponents.DayNight">
         <!-- Primary brand color. -->
         <item name="colorPrimary">#0000FF</item>
         <item name="colorPrimaryVariant">#FFEA00</item>

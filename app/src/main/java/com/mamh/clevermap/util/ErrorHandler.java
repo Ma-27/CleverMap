@@ -68,4 +68,8 @@ public class ErrorHandler {
         Log.e(TAG, simpleErrString + "\n" + errInfo);
         Snackbar.make(mapView, simpleErrString, Snackbar.LENGTH_SHORT).show();
     }
+
+    public static void handleException(String exceptionDescription) {
+        Snackbar.make(mapView, exceptionDescription, Snackbar.LENGTH_SHORT).show();
+    }
 }
