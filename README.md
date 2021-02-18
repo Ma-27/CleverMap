@@ -80,27 +80,27 @@ API by 高德  [传送门](https://lbs.amap.com/)
 
 关键点展示：  *致敬母校（逃*
 
-![](E:\MY_APPs\CleverMap\readme\poi.jpg)
+![](https://github.com/Ma-27/CleverMap/blob/master/readme/poi.jpg)
 
 切换地图：
 
-![](E:\MY_APPs\CleverMap\readme\switch_map.gif)
+![](https://github.com/Ma-27/CleverMap/blob/master/readme/switch_map.gif)
 
 定位功能及蓝点的指向：
 
-![](E:\MY_APPs\CleverMap\readme\locate.gif)
+![](https://github.com/Ma-27/CleverMap/blob/master/readme/locate.gif)
 
 搜索功能：
 
-![](E:\MY_APPs\CleverMap\readme\search.gif)
+![](https://github.com/Ma-27/CleverMap/blob/master/readme/search.gif)
 
 查看路线：
 
-![](E:\MY_APPs\CleverMap\readme\view_route.gif)
+![](https://github.com/Ma-27/CleverMap/blob/master/readme/view_route.gif)
 
 数据持久化：
 
-![](E:\MY_APPs\CleverMap\readme\data_preserve.gif)
+![](https://github.com/Ma-27/CleverMap/blob/master/readme/data_preserve.gif)
 
 
 
