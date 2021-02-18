@@ -1,5 +1,6 @@
 package com.mamh.clevermap.fragment;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
@@ -15,6 +16,7 @@ import com.mamh.clevermap.R;
  * 监听选择地图类型的Fragment
  */
 public class ChooseMapTypeDialogFragment extends DialogFragment {
+    private static final String TAG = "ChooseMapTypeDialogFrag成功";
 
     public ChooseMapTypeDialogFragment() {
         // Required empty public constructor
@@ -33,6 +35,7 @@ public class ChooseMapTypeDialogFragment extends DialogFragment {
         return fragment;
     }
 
+    @SuppressLint("InflateParams")
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
@@ -48,7 +51,6 @@ public class ChooseMapTypeDialogFragment extends DialogFragment {
 
         });
         builder.setView(inflater.inflate(R.layout.dialog_choose_map, null));
-
         return builder.create();
     }
 }

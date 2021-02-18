@@ -8,8 +8,9 @@
     android:background="@color/white"
     android:orientation="vertical"
     android:padding="12sp"
-    android:elevation="3sp"
+    android:elevation="10sp"
     app:behavior_peekHeight="84sp"
+    app:cardCornerRadius="10sp"
     app:layout_behavior="@string/bottom_sheet_behavior">
 
     <androidx.cardview.widget.CardView
@@ -28,7 +29,8 @@
                 android:layout_height="3sp"
                 android:layout_gravity="center"
                 android:layout_marginBottom="8sp"
-                android:background="?android:attr/listDivider" />
+                android:background="?android:attr/listDivider"
+                card_view:ignore="SmallSp" />
 
             <LinearLayout
                 android:layout_width="match_parent"

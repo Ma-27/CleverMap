@@ -7,6 +7,7 @@ public class GrantPermissionHelper {
     public static final int LOCATION_PERMISSION_CODE = 11;
     private static final String TAG = "GrantPermissionHelper成功";
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public static boolean IsEmptyOrNullString(String s) {
         return (s == null) || (s.trim().length() == 0);
     }

@@ -25,16 +25,10 @@ public class RouteSearchHelper extends RouteSearch
     private final Context context;
     //步行图层和结果处理
     private WalkRouteOverlay walkRouteOverlay;
-    private WalkRouteResult walkRouteResult;
     //骑行图层和结果处理
     private RideRouteOverlay rideRouteOverlay;
-    private RideRouteResult rideRouteResult;
-    //公交图层和结果处理
-    private BusRouteOverlay busRouteOverlay;
-    private BusRouteResult busRouteResult;
     //驾车图层和结果处理
     private DriveRouteOverlay driveRouteOverlay;
-    private DriveRouteResult driveRouteResult;
 
 
     public RouteSearchHelper(Context context) {
@@ -52,10 +46,10 @@ public class RouteSearchHelper extends RouteSearch
     @Override
     public void onBusRouteSearched(BusRouteResult busRouteResult, int i) {
         if (i == 1000) {
-            this.busRouteResult = busRouteResult;
             //公交路径，这里仅仅绘制一个图层，采用第一个
             BusPath busPath = busRouteResult.getPaths().get(0);
-            busRouteOverlay = new BusRouteOverlay(context, busPath,
+            //公交图层和结果处理
+            BusRouteOverlay busRouteOverlay = new BusRouteOverlay(context, busPath,
                     busRouteResult.getStartPos(), busRouteResult.getTargetPos());
             //将busPath添加到地图
             busRouteOverlay.addToMap();
@@ -77,7 +71,6 @@ public class RouteSearchHelper extends RouteSearch
     @Override
     public void onDriveRouteSearched(DriveRouteResult driveRouteResult, int i) {
         if (i == 1000) {
-            this.driveRouteResult = driveRouteResult;
             //驾车路径，这里仅仅绘制一个图层，采用第一个
             DrivePath drivePath = driveRouteResult.getPaths().get(0);
             //如果该图层具有内容，则移除添加新的内容
@@ -107,7 +100,6 @@ public class RouteSearchHelper extends RouteSearch
     public void onWalkRouteSearched(WalkRouteResult walkRouteResult, int i) {
         //如若一切正常，开始绘制图层，否则异常处理
         if (i == 1000) {
-            this.walkRouteResult = walkRouteResult;
             //步行路径，这里仅仅绘制一个图层，采用第一个
             WalkPath walkPath = walkRouteResult.getPaths().get(0);
             //如果该图层具有内容，则移除添加新的内容
@@ -138,7 +130,6 @@ public class RouteSearchHelper extends RouteSearch
     @Override
     public void onRideRouteSearched(RideRouteResult rideRouteResult, int i) {
         if (i == 1000) {
-            this.rideRouteResult = rideRouteResult;
             //骑行路径，这里仅仅绘制一个图层，采用第一个搜索结果
             RidePath ridePath = rideRouteResult.getPaths().get(0);
             //如果该图层具有内容，则移除添加新的内容

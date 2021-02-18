@@ -33,7 +33,7 @@ public class PoiViewBottomSheetHelper extends BottomSheetBehavior.BottomSheetCal
         titleTextView = rootLayout.findViewById(R.id.textView_poi_title);
         distanceTextView = rootLayout.findViewById(R.id.poi_distance);
         this.rootLayout = rootLayout;
-        AppCompatButton botton = rootLayout.findViewById(R.id.button);
+        AppCompatButton button = rootLayout.findViewById(R.id.button);
     }
 
     /**
@@ -56,7 +56,7 @@ public class PoiViewBottomSheetHelper extends BottomSheetBehavior.BottomSheetCal
         } else if (pullUpFlag) {
             //啥也不用做,flag恢复默认状态
             pullUpFlag = false;
-        } //啥也不用做,flag恢复默认状态
+        }
 
     }
 

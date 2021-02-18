@@ -32,7 +32,6 @@ import static com.amap.api.services.route.RouteSearch.DRIVING_SINGLE_DEFAULT;
 public class RouteActivity extends AppCompatActivity implements
         TabLayout.OnTabSelectedListener {
     private static final String TAG = "RouteActivity成功";
-    private TabLayout tabLayout = null;
     public static MapView routeMapView;
     public static AMap routeAMap;
     private LatLonPoint startPoint, endPoint;
@@ -49,7 +48,7 @@ public class RouteActivity extends AppCompatActivity implements
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 
-        tabLayout = findViewById(R.id.tab_layout);
+        TabLayout tabLayout = findViewById(R.id.tab_layout);
         tabLayout.addOnTabSelectedListener(this);
 
         FloatingActionButton fab = findViewById(R.id.fab);

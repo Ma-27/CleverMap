@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.app.DialogFragment;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -89,6 +90,10 @@ public class MainActivity extends FragmentActivity implements LocationSource,
     //自定义的针对POI的BottomSheet，处理BottomSheet类的滑动操作
     private PoiViewBottomSheetHelper viewPoiSheetHelper = null;
     private PoiSearchBottomSheetHelper searchPoiSheetHelper = null;
+    private MainActivityViewModel viewModel;
+    //控制蓝点旋转的传感器
+    private SensorEventHelper sensorHelper;
+    private SharedPreferences preferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -401,27 +406,31 @@ public class MainActivity extends FragmentActivity implements LocationSource,
     @RequiresApi(api = Build.VERSION_CODES.Q)
     public void setMapType(View view) {
         int id = view.getSourceLayoutResId();
+        //保存SharedPreference
+        SharedPreferences.Editor editor = preferences.edit();
         try {
             switch (id) {
                 //当选中地图为导航时
                 case R.layout.choose_map_item_navigation:
                     aMap.setMapType(AMap.MAP_TYPE_NAVI);
+                    editor.putInt(MAP_TYPE_KEY, AMap.MAP_TYPE_NAVI);
                     break;
                 //当选中地图为夜间模式时
                 case R.layout.choose_map_item_night:
                     aMap.setMapType(AMap.MAP_TYPE_NIGHT);
+                    editor.putInt(MAP_TYPE_KEY, AMap.MAP_TYPE_NIGHT);
                     break;
                 //当选中地图为卫星地图模式时
                 case R.layout.choose_map_item_satellite:
                     aMap.setMapType(AMap.MAP_TYPE_SATELLITE);
+                    editor.putInt(MAP_TYPE_KEY, AMap.MAP_TYPE_SATELLITE);
                     break;
-                //当选中地图为默认时
+                //当选中地图为默认时，普通地图道路交通状况默认可见
                 case R.layout.choose_map_item_default:
-                    //默认切换为原图
                 default:
                     aMap.setMapType(AMap.MAP_TYPE_NORMAL);
-                    //普通地图道路交通状况默认可见
                     aMap.setTrafficEnabled(true);
+                    editor.putInt(MAP_TYPE_KEY, AMap.MAP_TYPE_NORMAL);
                     break;
             }
         } catch (NullPointerException nullPointerException) {
@@ -431,6 +440,7 @@ public class MainActivity extends FragmentActivity implements LocationSource,
             Log.e(TAG, "setDefaultMapType: 未成功，遇到未知异常" + id);
             e.printStackTrace();
         }
+        editor.apply();
     }
 
     public void checkStatePermission() {
@@ -534,7 +544,6 @@ public class MainActivity extends FragmentActivity implements LocationSource,
     /**
      * Button的OnClick响应，只能在activity中使用显式intent
      *
-     * @param view 传入button的view对象
      */
     public void launchRouteActivity(View view) {
         Intent intent = new Intent(this, RouteActivity.class);
