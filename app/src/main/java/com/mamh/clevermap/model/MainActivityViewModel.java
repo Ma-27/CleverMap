@@ -63,8 +63,8 @@ public class MainActivityViewModel extends AndroidViewModel {
             case AMap.MAP_TYPE_NORMAL:
             default:
                 modelAMap.setMapType(AMap.MAP_TYPE_NORMAL);
-                modelAMap.setTrafficEnabled(true);
         }
+        modelAMap.setTrafficEnabled(true);
     }
 
     public AMap getAMap() {

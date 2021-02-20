@@ -8,7 +8,7 @@
 
 
     <com.google.android.material.tabs.TabLayout
-        android:id="@+id/tab_layout"
+        android:id="@+id/tab_layout_route"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -34,10 +34,10 @@
     </com.google.android.material.tabs.TabLayout>
 
     <com.amap.api.maps.MapView
-        android:id="@+id/route_map"
+        android:id="@+id/map_route"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/tab_layout"
+        android:layout_below="@id/tab_layout_route"
         android:layout_marginBottom="0sp" />
 
 </RelativeLayout>

@@ -34,17 +34,21 @@ API by 高德  [传送门](https://lbs.amap.com/)
 >​	在详细信息页面点击路线按钮查看路线，可以在TabLayout上切换路线，
 >
 >​	其中在起点/终点/关键点可以点击查看出行提示
+>
+>6.其他隐藏功能：
+>
+>​	夜间模式支持；异常处理；部分组件Material Design
 
 #### 技术设计及实现思路：
 
->动态权限获取：
+><u>动态权限获取</u>：
 >
 >```
 >//系统弹框请求权限
 >ActivityCompat.requestPermissions(this,new String[]{permission} requestCode);
 >```
 >
->定位蓝点旋转功能：
+><u>定位蓝点旋转功能</u>：
 >
 >​	蓝点旋转效果即将朝上的方形的蓝点图片整体旋转一定的角度。
 >
@@ -55,23 +59,29 @@ API by 高德  [传送门](https://lbs.amap.com/)
 >marker.setRotateAngle(360 - angle);
 >```
 >
->​		使用SharedPreference存储选中的地图类型，在应用重启后仍然能够加载退出时选中的地图类型；使用ViewModel暂存对象和数据，在Configuation改变时能保留部分设置
+>​		使用<u>SharedPreference</u>存储选中的地图类型，在应用重启后仍然能够加载退出时选中的地图类型；使用<u>ViewModel</u>暂存对象和数据，在Configuation改变时能保留部分设置
 >
->​		两个BottomSheet控件分别用于查看POI和搜索POI显示RecyclerView
+><u>BottomSheet控件</u>：两个BottomSheet控件分别用于查看POI和搜索POI显示RecyclerView
+>
+>​		布局文件根视图为LinearLayout。只需添加以下声明即可变为BottomSheet布局：
+>
+>```
+>app:layout_behavior="@string/bottom_sheet_behavior"
+>```
 >
 >其中查看POI的BottomSheet通过 `newState`   参数判断BottomSheet的状态并执行特定的操作
 >
 >```
 >@Override
 >public void onStateChanged(@NonNull View bottomSheet, int newState) {
->    	if (newState == BottomSheetBehavior.STATE_EXPANDED && !pullUpFlag) {
->          	//设置参数并开始搜索
->          	PoiSearchHelper poiSearchHelper = new PoiSearchHelper(context, null, 						rootLayout);
->            	poiSearchHelper.searchPOIIdAsyn(poi.getPoiId());
->    	} else if (pullUpFlag) {
->        		//flag恢复默认状态
->        		pullUpFlag = false;
->    	} 
+>	if (newState == BottomSheetBehavior.STATE_EXPANDED && !pullUpFlag) {
+>     	//设置参数并开始搜索
+>     	PoiSearchHelper poiSearchHelper = new PoiSearchHelper(context, null, rootLayout);
+>       	poiSearchHelper.searchPOIIdAsyn(poi.getPoiId());
+>	} else if (pullUpFlag) {
+>   		//flag恢复默认状态
+>   		pullUpFlag = false;
+>	} 
 >}
 >```
 >​		当然还有诸如搜索及结果处理，RecyclerView等等基本内容
@@ -106,17 +116,19 @@ API by 高德  [传送门](https://lbs.amap.com/)
 
 ### **心得体会**
 
-​		需要提前想好：实现什么功能/怎么实现/界面及界面导航方式/数据和界面的通信方式。只有这些心里都有数，编程时候才能少改动，效率才最高。
+​		需要提前想好：实现什么功能/怎么实现/界面及界面导航方式/数据和界面的通信方式。比如说MVVM是几乎要做完才了解到的，如果一开始设计就想好要加入，则可以省去很多繁琐的参数传递。只有这些心里都有数，编程时候才能少改动，效率才最高。
 
-​		多学习参考文档和Github上各路大神的作品。我当快要完成时才学懂Handler的用法，浪费了很多精力。要先去学习用法，等学习的差不多了再来做。
+​		多学习参考文档和Github上各路大神的作品。我当快要完成时才学懂Handler的用法，浪费了很多精力，作品中也没有加入。要先去学习用法，等学习的差不多了再来做。
 
 ### 待提升优化的地方
 
-1.使用Kotlin
+1.Model和ViewModel的深入使用，采用MVVM架构
 
-2.Model和ViewModel的深入使用，采用MVP或者MVVM架构
+2.使用Handler取代直接传递某些参数
 
-3.使用Handler取代直接传递某些参数
+3.使用Kotlin
 
 4.导航功能/任意点到任意点的路线（虽然不难做了）
+
+5.减少硬编码和各种Warnings，提升健壮性
 

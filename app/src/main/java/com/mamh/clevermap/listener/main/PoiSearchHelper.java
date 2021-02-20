@@ -17,6 +17,7 @@ import com.amap.api.services.core.PoiItem;
 import com.amap.api.services.poisearch.PoiResult;
 import com.amap.api.services.poisearch.PoiSearch;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.snackbar.Snackbar;
 import com.mamh.clevermap.R;
 import com.mamh.clevermap.activity.MainActivity;
 import com.mamh.clevermap.adapter.PoiSearchLayoutAdapter;
@@ -55,11 +56,11 @@ public class PoiSearchHelper extends PoiSearch implements PoiSearch.OnPoiSearchL
         setOnPoiSearchListener(this);
         this.context = context;
         this.rootView = layoutRootView;
-        titleView = rootView.findViewById(R.id.textView_poi_title);
-        item1View = rootView.findViewById(R.id.poi_item1);
-        item2View = rootView.findViewById(R.id.poi_item2);
-        telView = rootView.findViewById(R.id.poi_info_tel);
-        distanceView = rootView.findViewById(R.id.poi_distance);
+        titleView = rootView.findViewById(R.id.tv_poi_title);
+        item1View = rootView.findViewById(R.id.tv_poi_address);
+        item2View = rootView.findViewById(R.id.tv_poi_type);
+        telView = rootView.findViewById(R.id.tv_poi_tel);
+        distanceView = rootView.findViewById(R.id.tv_poi_distance);
     }
 
     public PoiSearchHelper(Context context, Query query,
@@ -93,7 +94,8 @@ public class PoiSearchHelper extends PoiSearch implements PoiSearch.OnPoiSearchL
             }
         } else {
             handleSearchError(i);
-            ErrorHandler.handleErrorCode(i);
+            Snackbar.make(rootView, ErrorHandler.handleErrorCode(i),
+                    Snackbar.LENGTH_SHORT).show();
         }
     }
 
@@ -172,7 +174,8 @@ public class PoiSearchHelper extends PoiSearch implements PoiSearch.OnPoiSearchL
         } else {
             //对返回的错误码进行处理
             handleSearchError(i);
-            ErrorHandler.handleErrorCode(i);
+            Snackbar.make(rootView, ErrorHandler.handleErrorCode(i),
+                    Snackbar.LENGTH_SHORT).show();
         }
     }
 }

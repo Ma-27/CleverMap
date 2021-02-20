@@ -12,10 +12,10 @@
         android:theme="@style/Theme.CleverMap">
 
         <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
+            android:id="@+id/toolbar_route_choose"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="#FFFFFF"
+            android:background="@color/icon_background"
             app:popupTheme="@style/Theme.CleverMap.PopupOverlay" />
 
     </com.google.android.material.appbar.AppBarLayout>

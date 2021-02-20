@@ -78,7 +78,7 @@ public class PoiSearchLayoutAdapter extends
     @Override
     public PoiSearchLayoutAdapter.PoiSearchViewHolder
     onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        recyclerRootLayout = inflater.inflate(R.layout.search_recycler_item,
+        recyclerRootLayout = inflater.inflate(R.layout.item_recycler_search,
                 parent, false);
         return new PoiSearchViewHolder(recyclerRootLayout, this);
     }
@@ -146,9 +146,9 @@ public class PoiSearchLayoutAdapter extends
         //该内部类的构造方法，这里一次进行初始化，避免每创建一个itemView就初始化一次的麻烦
         public PoiSearchViewHolder(@NonNull View itemView, PoiSearchLayoutAdapter adapter) {
             super(itemView);
-            titleTextView = itemView.findViewById(R.id.recycler_item_title);
-            locationTextView = itemView.findViewById(R.id.recycler_item_location);
-            addressTextView = itemView.findViewById(R.id.recycler_item_address);
+            titleTextView = itemView.findViewById(R.id.tv_recycler_item_title);
+            locationTextView = itemView.findViewById(R.id.tv_recycler_item_location);
+            addressTextView = itemView.findViewById(R.id.tv_recycler_item_address);
             this.adapter = adapter;
             itemView.setOnClickListener(this);
         }

@@ -10,7 +10,7 @@
         <item name="colorSecondaryVariant">#F57F17</item>
         <item name="colorOnSecondary">#1B5E20</item>
         <!-- Status bar color. -->
-        <item name="android:statusBarColor">#F0F0F0</item>
+        <item name="android:statusBarColor">@color/statusBar</item>
 
         <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
         <!-- Customize your theme here. -->
@@ -19,5 +19,5 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="Theme.CleverMap.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+    <style name="Theme.CleverMap.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"></style>
 </resources>

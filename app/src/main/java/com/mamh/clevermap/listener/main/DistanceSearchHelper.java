@@ -9,6 +9,7 @@ import com.amap.api.services.core.LatLonPoint;
 import com.amap.api.services.route.DistanceItem;
 import com.amap.api.services.route.DistanceResult;
 import com.amap.api.services.route.DistanceSearch;
+import com.mamh.clevermap.util.ErrorHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,7 +60,7 @@ public class DistanceSearchHelper extends DistanceSearch
         distanceResult.getDistanceResults();
         //检查网络和服务是否正常
         if (i != 1000) {
-            distanceTextView.setText("网络或服务器出错啦，错误代码" + i);
+            distanceTextView.setText(ErrorHandler.handleErrorCode(i));
         } else {
             try {
                 //算个平均值

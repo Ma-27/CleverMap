@@ -1,4 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="blue">#0000FF</color>
+
+    <!-- 字体颜色. -->
+    <color name="textView_title">#B9F6CA</color>
+    <color name="textView_subTitle">#80D8FF</color>
+    <color name="textView_item">#69F0AE</color>
+    <color name="textView_distance">#FAFAFA</color>
+
+    <!-- 前景背景颜色. -->
+    <color name="bottomSheet_background">#323232</color>
+    <color name="icon_background">#505050</color>
+    <color name="icon_tint">#69F0AE</color>
+
+    <!-- 栏目颜色. -->
+    <color name="statusBar">#282828</color>
 </resources>

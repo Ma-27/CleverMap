@@ -248,8 +248,6 @@ public class MainActivity extends FragmentActivity implements LocationSource,
             marker = aMap.addMarker(new MarkerOptions().position(position));
             aMap.animateCamera(CameraUpdateFactory.newLatLngZoom(position, MAP_ZOOM));
             try {
-                viewPoiSheetHelper.setPoi(poi);
-                viewPoiSheetHelper.updatePOIText();
                 //设置搜索和查看poi的BottomSheet状态
                 viewPoiSheetBehaviour.setState(BottomSheetBehavior.STATE_COLLAPSED);
                 //设置BottomSheet不可隐藏（避免误会和吐槽）
@@ -257,6 +255,9 @@ public class MainActivity extends FragmentActivity implements LocationSource,
 
                 searchPoiSheetBehaviour.setHideable(true);
                 searchPoiSheetBehaviour.setState(BottomSheetBehavior.STATE_HIDDEN);
+                //搜索poi
+                viewPoiSheetHelper.setPoi(poi);
+                viewPoiSheetHelper.updatePOIText();
             } catch (NullPointerException nullPointerException) {
                 Log.e(TAG, "setUpMap: 处理POI onClick中遭遇空指针异常");
                 nullPointerException.printStackTrace();
@@ -429,10 +430,10 @@ public class MainActivity extends FragmentActivity implements LocationSource,
                 case R.layout.choose_map_item_default:
                 default:
                     aMap.setMapType(AMap.MAP_TYPE_NORMAL);
-                    aMap.setTrafficEnabled(true);
                     editor.putInt(MAP_TYPE_KEY, AMap.MAP_TYPE_NORMAL);
                     break;
             }
+            aMap.setTrafficEnabled(true);
         } catch (NullPointerException nullPointerException) {
             Log.e(TAG, "setDefaultMapType: 未成功，aMap对象为空,布局ID为：" + id);
             nullPointerException.printStackTrace();

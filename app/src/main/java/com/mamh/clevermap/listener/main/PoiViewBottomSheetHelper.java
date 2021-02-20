@@ -6,7 +6,6 @@ import android.view.View;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.widget.AppCompatButton;
 
 import com.amap.api.maps.model.LatLng;
 import com.amap.api.maps.model.Poi;
@@ -30,10 +29,9 @@ public class PoiViewBottomSheetHelper extends BottomSheetBehavior.BottomSheetCal
     public PoiViewBottomSheetHelper(Context context, View rootLayout) {
         this.context = context;
         //设置TextView
-        titleTextView = rootLayout.findViewById(R.id.textView_poi_title);
-        distanceTextView = rootLayout.findViewById(R.id.poi_distance);
+        titleTextView = rootLayout.findViewById(R.id.tv_poi_title);
+        distanceTextView = rootLayout.findViewById(R.id.tv_poi_distance);
         this.rootLayout = rootLayout;
-        AppCompatButton button = rootLayout.findViewById(R.id.button);
     }
 
     /**

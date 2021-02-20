@@ -2,10 +2,6 @@ package com.mamh.clevermap.util;
 
 import android.util.Log;
 
-import com.google.android.material.snackbar.Snackbar;
-
-import static com.mamh.clevermap.activity.MainActivity.mapView;
-
 public class ErrorHandler {
     private static final String TAG = "ErrorHandler成功";
 
@@ -19,19 +15,41 @@ public class ErrorHandler {
     public static String handleErrorCode(int errorCode) {
         String errorText;
         switch (errorCode) {
+            case 20011:
+                errorText = "出现错误，这可能是在虚拟机上定位引发的，定位到了旧金山硅谷附近";
+                break;
+            case 1002:
+                errorText = "开发者的Key不正确或过期";
+                break;
+            case 1008:
+                errorText = "MD5安全码未通过验证,请检查SHA1、包名是否正确";
+                break;
+            case 1009:
+                errorText = "请求Key与绑定平台不符";
+                break;
+            case 1013:
+                errorText = "Key被删除,请反馈给开发者";
+                break;
+            case 1903:
+                errorText = "空指针异常,为SDK内部错误";
+                break;
             case 1200:
-                errorText = "请求参数非法,错误代码：";
+                errorText = "请求参数非法(目前暂时不支持搜索公交线路）";
                 break;
             case 1804:
-                errorText = "网络未连接，请检查网路是否畅通\n错误代码：";
+                errorText = "网络未连接，请检查网路是否畅通";
+                break;
+            case 3000:
+                errorText = "规划点（包括起点、终点、途经点）不在中国陆地范围内";
+                break;
+            case 3003:
+                errorText = "要去的地方太远啦emm，换种交通方式试试吧";
                 break;
             default:
-                errorText = "出现未知错误\n错误代码：";
+                errorText = "出现未知错误";
         }
-        Log.e(TAG, "handleErrorCode: " + errorText + errorCode);
-        Snackbar.make(mapView, errorText + errorCode,
-                Snackbar.LENGTH_SHORT).show();
-        return errorText + errorCode;
+        Log.e(TAG, "handleErrorCode: " + errorText + "\n错误代码：" + errorCode);
+        return errorText + "\n错误代码：" + errorCode;
     }
 
     /**
@@ -40,7 +58,7 @@ public class ErrorHandler {
      * @param errorCode 传入的错误码
      * @param errInfo   解析得到的错误详细信息
      */
-    public static void handleLocateError(int errorCode, String errInfo) {
+    public static String handleLocateError(int errorCode, String errInfo) {
         String simpleErrString = "定位失败,错误码为：";
         switch (errorCode) {
             case 1:
@@ -66,10 +84,10 @@ public class ErrorHandler {
                 break;
         }
         Log.e(TAG, simpleErrString + "\n" + errInfo);
-        Snackbar.make(mapView, simpleErrString, Snackbar.LENGTH_SHORT).show();
+        return simpleErrString;
     }
 
     public static void handleException(String exceptionDescription) {
-        Snackbar.make(mapView, exceptionDescription, Snackbar.LENGTH_SHORT).show();
+        Log.e(TAG, "handleException: " + exceptionDescription);
     }
 }

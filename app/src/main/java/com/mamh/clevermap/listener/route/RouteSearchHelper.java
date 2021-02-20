@@ -117,7 +117,7 @@ public class RouteSearchHelper extends RouteSearch
         } else {
             Log.e(TAG, "onWalkRouteSearched: 计算步行路线时发生异常，详情见下方");
             String err = ErrorHandler.handleErrorCode(i);
-            Toast.makeText(context, err, Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, err, Toast.LENGTH_LONG).show();
         }
     }
 
@@ -147,7 +147,7 @@ public class RouteSearchHelper extends RouteSearch
         } else {
             Log.e(TAG, "onRideRouteSearched: 计算骑行路线时发生异常，详情见下方");
             String err = ErrorHandler.handleErrorCode(i);
-            Toast.makeText(context, err, Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, err, Toast.LENGTH_LONG).show();
         }
     }
 }

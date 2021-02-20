@@ -7,13 +7,13 @@
     tools:context=".activity.MainActivity">
 
     <com.amap.api.maps.MapView
-        android:id="@+id/map"
+        android:id="@+id/map_main"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginBottom="0sp" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/switchMapType"
+        android:id="@+id/fab_map_switch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:clickable="true"
@@ -21,18 +21,18 @@
         android:focusable="true"
         android:src="@android:drawable/ic_dialog_map"
         android:layout_marginTop="48sp"
-        android:layout_marginEnd="4sp"
+        android:layout_marginEnd="3sp"
         app:elevation="@dimen/cardview_default_elevation"
-        app:layout_anchor="@id/map"
+        app:backgroundTint="@color/icon_background"
         app:layout_anchorGravity="right|top"
-        app:backgroundTint="@color/white"
+        app:layout_anchor="@id/map_main"
         app:fabSize="mini"
-        app:tint="#2E7D32" />
+        app:tint="@color/icon_tint" />
 
     <!-- 引入poi浏览 bottom sheet控件-->
-    <include layout="@layout/poi_bottom_sheet" />
+    <include layout="@layout/bottom_sheet_poi" />
 
     <!-- 引入poi搜索 bottom sheet控件-->
-    <include layout="@layout/search_bottom_sheet" />
+    <include layout="@layout/bottom_sheet_search" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

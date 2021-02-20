@@ -16,8 +16,10 @@ import com.amap.api.services.help.Inputtips;
 import com.amap.api.services.help.InputtipsQuery;
 import com.amap.api.services.poisearch.PoiSearch;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.snackbar.Snackbar;
 import com.mamh.clevermap.R;
 import com.mamh.clevermap.adapter.PoiSearchLayoutAdapter;
+import com.mamh.clevermap.util.ErrorHandler;
 
 import static com.mamh.clevermap.activity.MainActivity.searchPoiSheetBehaviour;
 import static com.mamh.clevermap.activity.MainActivity.viewPoiSheetBehaviour;
@@ -41,12 +43,12 @@ public class PoiSearchBottomSheetHelper extends
         this.searchRootLayout = searchRootView;
         this.infoRootLayout = infoRootView;
         //处理搜索框的搜索事件
-        SearchView searchView = searchRootView.findViewById(R.id.searchView_poi);
+        SearchView searchView = searchRootView.findViewById(R.id.search_view_poi);
         searchView.setIconifiedByDefault(true);
 
         searchView.setOnQueryTextListener(this);
         //为RecyclerView初始化
-        poiSearchRecyclerView = searchRootLayout.findViewById(R.id.search_recycler_view);
+        poiSearchRecyclerView = searchRootLayout.findViewById(R.id.recycler_view_search);
         poiSearchRecyclerView.setLayoutManager(new LinearLayoutManager(context));
         //添加分割线
         poiSearchRecyclerView.addItemDecoration
@@ -122,6 +124,8 @@ public class PoiSearchBottomSheetHelper extends
                     poiSearchRecyclerView.setAdapter(poiSearchLayoutAdapter);
                 } else {
                     Log.w(TAG, "获取输入提示时出错，错误代码：" + i);
+                    Snackbar.make(poiSearchRecyclerView,
+                            ErrorHandler.handleErrorCode(i), Snackbar.LENGTH_SHORT).show();
                 }
             });
             inputTips.requestInputtipsAsyn();

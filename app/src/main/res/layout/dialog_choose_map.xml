@@ -26,7 +26,7 @@
             android:layout_weight="2" />
 
         <include
-            layout="@layout/choose_map_item_default"
+            layout="@layout/item_map_default"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
@@ -36,7 +36,7 @@
             android:layout_weight="3" />
 
         <include
-            layout="@layout/choose_map_item_satellite"
+            layout="@layout/item_map_satellite"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
@@ -68,7 +68,7 @@
             android:layout_weight="2" />
 
         <include
-            layout="@layout/choose_map_item_navigation"
+            layout="@layout/item_map_navigation"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
@@ -78,7 +78,7 @@
             android:layout_weight="3" />
 
         <include
-            layout="@layout/choose_map_item_night"
+            layout="@layout/item_map_night"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 

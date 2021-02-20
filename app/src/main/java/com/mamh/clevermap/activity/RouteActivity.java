@@ -42,13 +42,13 @@ public class RouteActivity extends AppCompatActivity implements
         //activity初始化设置
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_route);
-        Toolbar toolbar = findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar_route_choose);
         setSupportActionBar(toolbar);
         //添加默认的返回图标并设置返回键可用
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 
-        TabLayout tabLayout = findViewById(R.id.tab_layout);
+        TabLayout tabLayout = findViewById(R.id.tab_layout_route);
         tabLayout.addOnTabSelectedListener(this);
 
         FloatingActionButton fab = findViewById(R.id.fab);
@@ -74,7 +74,7 @@ public class RouteActivity extends AppCompatActivity implements
                 (AmapUtilityTools.convertToLatLng(poiLatitude, poiLongitude));
 
         //设置地图初始化
-        routeMapView = findViewById(R.id.route_map);
+        routeMapView = findViewById(R.id.map_route);
         routeMapView.onCreate(savedInstanceState);
         setUpMap();
         configureMapSettings();
